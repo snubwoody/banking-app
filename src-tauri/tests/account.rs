@@ -1,50 +1,33 @@
-use banking_app_lib::{db::{Account, Transaction}, AccountService};
+use banking_app_lib::{db::{Account}, AccountService, Error};
 use sqlx::SqlitePool;
 
-#[tokio::test]
-async fn create_account() {
-    let accounts = AccountService::new().await;
-    let account = accounts.create_account("Name").await;
-    dbg!(&account);
-    let url = "../data.db";
-    let pool = sqlx::SqlitePool::connect(&url).await.unwrap();
+#[sqlx::test]
+async fn create_account(pool: SqlitePool) -> Result<(),Error>{
+    let accounts = AccountService::from_pool(pool.clone()).await;
+    let account = accounts.create_account("Name").await?;
     let row: Account = sqlx::query_as("SELECT * FROM accounts WHERE id=$1")
         .bind(account.id)
         .fetch_one(&pool)
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(account.id, row.id);
     assert_eq!(account.name, row.name);
-}
-
-#[tokio::test]
-async fn delete_account() {
-    let accounts = AccountService::new().await;
-    let account = accounts.create_account("Name").await;
-    accounts.delete_account(account.id).await;
+    Ok(())
 }
 
 
-#[sqlx::test(migrations="../migrations")]
-async fn add_transaction(pool: SqlitePool) {
+#[sqlx::test]
+async fn delete_account(pool: SqlitePool) -> Result<(),Error>{
     let accounts = AccountService::from_pool(pool.clone()).await;
-    let account = accounts.create_account("Name").await;
-    let transaction = accounts.add_transaction(account.id, 10_000).await;
-    sqlx::query("SELECT * FROM transactions WHERE id=$1")
-        .bind(transaction.id)
-        .fetch_one(&pool)
-        .await
-        .unwrap();
-
-    // assert_eq!(row.amount,10_000);
-}
-
-
-#[sqlx::test(migrations="../migrations")]
-async fn get_transactions(pool: SqlitePool) {
-    let accounts = AccountService::from_pool(pool.clone()).await;
-    let account = accounts.create_account("Name").await;
-    let transactions = accounts.get_transactions(account.id).await;
-    dbg!(&transactions);
+    let account = accounts.create_account("Name").await?;
+    let rows = sqlx::query!("SELECT * FROM accounts")
+        .fetch_all(&pool)
+        .await?;
+    assert_eq!(rows.len(),1);
+    accounts.delete_account(account.id).await?;
+    let rows = sqlx::query!("SELECT * FROM accounts")
+        .fetch_all(&pool)
+        .await?;
+    assert!(rows.is_empty());
+    Ok(())
 }

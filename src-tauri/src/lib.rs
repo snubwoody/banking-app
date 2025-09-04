@@ -1,5 +1,7 @@
 pub mod db;
+pub mod error;
 pub use db::AccountService;
+pub use error::Error;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {

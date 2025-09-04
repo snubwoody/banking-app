@@ -1,0 +1,1 @@
+INSERT INTO categories(id,title) VALUES($1,$2) RETURNING id,title;

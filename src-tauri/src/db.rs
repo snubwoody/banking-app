@@ -1,24 +1,24 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, SqlitePool};
-use uuid::Uuid;
+use crate::Error;
 
-#[derive(Debug, FromRow, Serialize, Deserialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize,Default)]
 pub struct Account {
-    pub id: Uuid,
+    pub id: i64,
     pub name: String,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize,Default)]
 pub struct Transaction {
-    pub id: Uuid,
-    pub account: Uuid,
+    pub id: i64,
+    pub account: Account,
     pub amount: i32,
     pub category: Category
 }
 
 #[derive(Debug,FromRow,Serialize,Deserialize,Default)]
 pub struct Category{
-    id: Uuid,
+    id: i32,
     title: String
 }
 
@@ -28,7 +28,7 @@ pub struct AccountService {
 
 impl AccountService {
     pub async fn new() -> Self {
-        let url = "../data.db";
+        let url = "data.db";
         let pool = sqlx::SqlitePool::connect(&url).await.unwrap();
         Self { pool }
     }
@@ -37,17 +37,13 @@ impl AccountService {
         Self { pool }
     }
 
-    pub async fn create_account(&self, name: &str) -> Account {
-        let id = Uuid::new_v4();
-
-        let account = sqlx::query_as("INSERT INTO accounts(id,name) VALUES($1,$2) RETURNING *")
-            .bind(id)
+    pub async fn create_account(&self, name: &str) -> Result<Account,Error> {
+        let account: Account = sqlx::query_as("INSERT INTO accounts(name) VALUES($1) RETURNING *")
             .bind(name)
             .fetch_one(&self.pool)
-            .await
-            .unwrap();
+            .await?;
 
-        account
+        Ok(account)
     }
 
     /// Get all the accounts
@@ -61,44 +57,47 @@ impl AccountService {
     }
 
     /// Delete an account.
-    pub async fn delete_account(&self, id: Uuid) {
+    pub async fn delete_account(&self, id: i64) -> Result<(),crate::Error> {
         sqlx::query("DELETE FROM accounts WHERE id = $1")
             .bind(id)
             .execute(&self.pool)
-            .await
-            .unwrap();
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn add_category(&self, title: &str){
+        // sqlx::query_file!("queries/add_category.sql",title)
     }
 
     /// Create a new transaction.
-    pub async fn add_transaction(&self, account_id: Uuid, amount: i32) -> Transaction{
-        sqlx::query(
-            "INSERT INTO transactions(id,amount,account) 
-            VALUES($1,$2,$3) 
-            RETURNING *",
+    pub async fn add_transaction(&self, amount: i32,account: i64, category: i64) -> i64{
+        let row = sqlx::query_file!(
+            "queries/add_transaction.sql",
+            amount,
+            account,
+            category
         )
-        .bind(Uuid::new_v4())
-        .bind(amount)
-        .bind(account_id)
         .fetch_one(&self.pool)
         .await
         .unwrap();
 
-        Transaction::default()
+        row.id
     }
 
     /// Delete a transactions.
-    pub async fn delete_transaction(&self, id: Uuid){
-        sqlx::query(
-            "DELETE FROM transactions WHERE id = $1"
+    pub async fn delete_transaction(&self, id: i64){
+        sqlx::query!(
+            "DELETE FROM transactions WHERE id = $1",
+            id
         )
-        .bind(id)
         .execute(&self.pool)
         .await
         .unwrap();
     }
 
     /// Get all transactions belonging to a particular account.
-    pub async fn get_transactions(&self, account_id: Uuid) -> Vec<Transaction>{
+    pub async fn get_transactions(&self, account_id: i64) -> Vec<Transaction>{
         let rows = sqlx::query_file!("queries/get_all_transactions.sql")
         .fetch_all(&self.pool)
         .await
@@ -114,7 +113,7 @@ pub async fn create_account(
     accounts: tauri::State<'_, AccountService>,
     name: String,
 ) -> Result<Account, ()> {
-    let account = accounts.create_account(&name).await;
+    let account = accounts.create_account(&name).await.unwrap();
     tracing::info!("Created new account: {name}");
     Ok(account)
 }
@@ -130,7 +129,7 @@ pub async fn fetch_accounts(
 #[tauri::command]
 pub async fn delete_account(
     accounts: tauri::State<'_, AccountService>,
-    id: Uuid,
+    id: i64,
 ) -> Result<(), ()> {
     accounts.delete_account(id).await;
     tracing::info!("Deleted account: {id}");
@@ -140,10 +139,11 @@ pub async fn delete_account(
 #[tauri::command]
 pub async fn add_transaction(
     accounts: tauri::State<'_, AccountService>,
-    account: Uuid,
-    amount: i32
+    amount: i32,
+    account: i64,
+    category: i64,
 ) -> Result<(), ()> {
-    accounts.add_transaction(account,amount).await;
+    accounts.add_transaction(amount,account,category).await;
     Ok(())
 }
 
@@ -151,7 +151,7 @@ pub async fn add_transaction(
 #[tauri::command]
 pub async fn get_transactions(
     accounts: tauri::State<'_, AccountService>,
-    account: Uuid,
+    account: i64,
 ) -> Result<Vec<Transaction>, ()> {
     let transactions = accounts.get_transactions(account).await;
     Ok(transactions)
