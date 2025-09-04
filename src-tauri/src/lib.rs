@@ -1,7 +1,6 @@
 pub mod db;
 pub use db::AccountService;
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
     let account_service = AccountService::new().await;
@@ -11,7 +10,9 @@ pub async fn run() {
         .invoke_handler(tauri::generate_handler![
             db::create_account,
             db::fetch_accounts,
-            db::delete_account
+            db::delete_account,
+            db::get_transactions,
+            db::add_transaction
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

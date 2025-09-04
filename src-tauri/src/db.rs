@@ -8,6 +8,13 @@ pub struct Account {
     pub name: String,
 }
 
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct Transaction {
+    pub id: Uuid,
+    pub account: Uuid,
+    pub amount: i32,
+}
+
 pub struct AccountService {
     pool: SqlitePool,
 }
@@ -16,6 +23,10 @@ impl AccountService {
     pub async fn new() -> Self {
         let url = "../data.db";
         let pool = sqlx::SqlitePool::connect(&url).await.unwrap();
+        Self { pool }
+    }
+
+    pub async fn from_pool(pool: SqlitePool) -> Self {
         Self { pool }
     }
 
@@ -28,7 +39,6 @@ impl AccountService {
             .fetch_one(&self.pool)
             .await
             .unwrap();
-
 
         account
     }
@@ -50,6 +60,49 @@ impl AccountService {
             .execute(&self.pool)
             .await
             .unwrap();
+    }
+
+    /// Create a new transaction.
+    pub async fn add_transaction(&self, account_id: Uuid, amount: i32) -> Transaction{
+        let transaction: Transaction = sqlx::query_as(
+            "INSERT INTO transactions(id,amount,account) 
+            VALUES($1,$2,$3) 
+            RETURNING *",
+        )
+        .bind(Uuid::new_v4())
+        .bind(amount)
+        .bind(account_id)
+        .fetch_one(&self.pool)
+        .await
+        .unwrap();
+
+        transaction
+    }
+
+    /// Delete a transactions.
+    pub async fn delete_transaction(&self, id: Uuid) -> Transaction{
+        let transaction: Transaction = sqlx::query_as(
+            "DELETE FROM transactions WHERE id = $1"
+        )
+        .bind(id)
+        .fetch_one(&self.pool)
+        .await
+        .unwrap();
+
+        transaction
+    }
+
+    /// Get all transactions belonging to a particular account.
+    pub async fn get_transactions(&self, account_id: Uuid) -> Vec<Transaction>{
+        let transactions: Vec<Transaction> = sqlx::query_as(
+            "SELECT * FROM transactions WHERE account = $1"
+        )
+        .bind(account_id)
+        .fetch_all(&self.pool)
+        .await
+        .unwrap();
+
+        transactions
     }
 }
 
@@ -74,9 +127,29 @@ pub async fn fetch_accounts(
 #[tauri::command]
 pub async fn delete_account(
     accounts: tauri::State<'_, AccountService>,
-    id: Uuid
-) -> Result<(),()>{
+    id: Uuid,
+) -> Result<(), ()> {
     accounts.delete_account(id).await;
     tracing::info!("Deleted account: {id}");
     Ok(())
+}
+
+#[tauri::command]
+pub async fn add_transaction(
+    accounts: tauri::State<'_, AccountService>,
+    account: Uuid,
+    amount: i32
+) -> Result<(), ()> {
+    accounts.add_transaction(account,amount).await;
+    Ok(())
+}
+
+
+#[tauri::command]
+pub async fn get_transactions(
+    accounts: tauri::State<'_, AccountService>,
+    account: Uuid,
+) -> Result<Vec<Transaction>, ()> {
+    let transactions = accounts.get_transactions(account).await;
+    Ok(transactions)
 }
