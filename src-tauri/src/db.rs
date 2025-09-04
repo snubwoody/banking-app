@@ -8,11 +8,18 @@ pub struct Account {
     pub name: String,
 }
 
-#[derive(Debug, FromRow, Serialize, Deserialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize,Default)]
 pub struct Transaction {
     pub id: Uuid,
     pub account: Uuid,
     pub amount: i32,
+    pub category: Category
+}
+
+#[derive(Debug,FromRow,Serialize,Deserialize,Default)]
+pub struct Category{
+    id: Uuid,
+    title: String
 }
 
 pub struct AccountService {
@@ -64,7 +71,7 @@ impl AccountService {
 
     /// Create a new transaction.
     pub async fn add_transaction(&self, account_id: Uuid, amount: i32) -> Transaction{
-        let transaction: Transaction = sqlx::query_as(
+        sqlx::query(
             "INSERT INTO transactions(id,amount,account) 
             VALUES($1,$2,$3) 
             RETURNING *",
@@ -76,33 +83,29 @@ impl AccountService {
         .await
         .unwrap();
 
-        transaction
+        Transaction::default()
     }
 
     /// Delete a transactions.
-    pub async fn delete_transaction(&self, id: Uuid) -> Transaction{
-        let transaction: Transaction = sqlx::query_as(
+    pub async fn delete_transaction(&self, id: Uuid){
+        sqlx::query(
             "DELETE FROM transactions WHERE id = $1"
         )
         .bind(id)
-        .fetch_one(&self.pool)
+        .execute(&self.pool)
         .await
         .unwrap();
-
-        transaction
     }
 
     /// Get all transactions belonging to a particular account.
     pub async fn get_transactions(&self, account_id: Uuid) -> Vec<Transaction>{
-        let transactions: Vec<Transaction> = sqlx::query_as(
-            "SELECT * FROM transactions WHERE account = $1"
-        )
-        .bind(account_id)
+        let rows = sqlx::query_file!("queries/get_all_transactions.sql")
         .fetch_all(&self.pool)
         .await
         .unwrap();
+        dbg!(rows);
 
-        transactions
+        vec![]
     }
 }
 

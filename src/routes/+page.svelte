@@ -76,6 +76,3 @@
     </section>
 </main>
 
-<style>
-    
-</style>
