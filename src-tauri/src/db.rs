@@ -18,8 +18,8 @@ pub struct Transaction {
 
 #[derive(Debug,FromRow,Serialize,Deserialize,Default)]
 pub struct Category{
-    id: i32,
-    title: String
+    pub id: i64,
+    pub title: String
 }
 
 pub struct AccountService {
@@ -46,14 +46,12 @@ impl AccountService {
         Ok(account)
     }
 
-    /// Get all the accounts
-    pub async fn get_accounts(&self) -> Vec<Account> {
+    /// Get all the accounts.
+    pub async fn get_accounts(&self) -> Result<Vec<Account>,Error> {
         let accounts: Vec<Account> = sqlx::query_as("SELECT * FROM accounts")
             .fetch_all(&self.pool)
-            .await
-            .unwrap();
-
-        accounts
+            .await?;
+        Ok(accounts)
     }
 
     /// Delete an account.
@@ -66,8 +64,20 @@ impl AccountService {
         Ok(())
     }
 
-    pub async fn add_category(&self, title: &str){
-        // sqlx::query_file!("queries/add_category.sql",title)
+    pub async fn add_category(&self, title: &str) -> Result<Category,Error>{
+        let category = sqlx::query_file_as!(Category,"queries/add_category.sql",title)
+            .fetch_one(&self.pool)
+            .await?;
+
+        Ok(category)
+    }
+
+    pub async fn get_categories(&self) -> Result<Vec<Category>,Error>{
+        let categories = sqlx::query_file_as!(Category,"queries/get_categories.sql")
+            .fetch_all(&self.pool)
+            .await?;
+
+        Ok(categories)
     }
 
     /// Create a new transaction.
@@ -122,7 +132,7 @@ pub async fn create_account(
 pub async fn fetch_accounts(
     accounts: tauri::State<'_, AccountService>,
 ) -> Result<Vec<Account>, ()> {
-    let accounts = accounts.get_accounts().await;
+    let accounts = accounts.get_accounts().await.unwrap();
     Ok(accounts)
 }
 
@@ -131,7 +141,7 @@ pub async fn delete_account(
     accounts: tauri::State<'_, AccountService>,
     id: i64,
 ) -> Result<(), ()> {
-    accounts.delete_account(id).await;
+    accounts.delete_account(id).await.unwrap();
     tracing::info!("Deleted account: {id}");
     Ok(())
 }

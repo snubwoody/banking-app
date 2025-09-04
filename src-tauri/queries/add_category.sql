@@ -1,1 +1,1 @@
-INSERT INTO categories(id,title) VALUES($1,$2) RETURNING id,title;
+INSERT INTO categories(title) VALUES($1) RETURNING id,title;

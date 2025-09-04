@@ -7,3 +7,6 @@ end_of_line = lf
 
 [*.{rs,svelte}]
 indent_size = 4
+
+[*.{yml,yaml}]
+indent_size = 2
