@@ -1,0 +1,8 @@
+root = true
+
+[*]
+indent_style = space
+charset = utf-8
+
+[*.{rs,svelte}]
+indent_size = 4
