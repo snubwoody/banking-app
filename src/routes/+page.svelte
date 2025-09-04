@@ -23,18 +23,28 @@
     })
 </script>
 
-<main>
-    <button onclick={createAccount} class="bg-blue-500 text-white rounded-2xl p-3 cursor-pointer">
-        Create an account
-    </button>
-    <ul class="flex flex-col gap-4">
-        {#each accounts as account}
-            <li>
-                {account.name}
-                <button onclick={()=>deleteAccount(account.id)}>Delete</button>
-            </li>
-        {/each}
-    </ul>
+<main class="flex h-full">
+    <aside class="max-w-[250px] flex-1 h-full bg-neutral-50 border-l border-neutral-300 p-3 space-y-4">
+        <header class="flex items-center justify-between">
+            <p class="text-lg">Accounts</p>
+            <button onclick={createAccount} aria-label="Create account">
+                <i class="ph ph-plus-circle"></i>
+            </button>
+        </header>
+        <ul class="flex flex-col gap-4">
+            {#each accounts as account}
+                <li class="flex items-center justify-between">
+                    {account.name}
+                    <button aria-label="Delete account" onclick={()=>deleteAccount(account.id)}>
+                        <i class="ph ph-x-circle"></i>
+                    </button>
+                </li>
+            {/each}
+        </ul>
+    </aside>
+    <section class="flex-1">
+
+    </section>
 </main>
 
 <style>
