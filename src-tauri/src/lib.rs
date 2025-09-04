@@ -10,7 +10,8 @@ pub async fn run() {
         .manage(account_service)
         .invoke_handler(tauri::generate_handler![
             db::create_account,
-            db::fetch_accounts
+            db::fetch_accounts,
+            db::delete_account
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

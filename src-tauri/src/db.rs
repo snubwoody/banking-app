@@ -29,7 +29,6 @@ impl AccountService {
             .await
             .unwrap();
 
-        tracing::info!("Created new account: {id}");
 
         account
     }
@@ -43,6 +42,15 @@ impl AccountService {
 
         accounts
     }
+
+    /// Delete an account.
+    pub async fn delete_account(&self, id: Uuid) {
+        sqlx::query("DELETE FROM accounts WHERE id = $1")
+            .bind(id)
+            .execute(&self.pool)
+            .await
+            .unwrap();
+    }
 }
 
 #[tauri::command]
@@ -51,6 +59,7 @@ pub async fn create_account(
     name: String,
 ) -> Result<Account, ()> {
     let account = accounts.create_account(&name).await;
+    tracing::info!("Created new account: {name}");
     Ok(account)
 }
 
@@ -60,4 +69,14 @@ pub async fn fetch_accounts(
 ) -> Result<Vec<Account>, ()> {
     let accounts = accounts.get_accounts().await;
     Ok(accounts)
+}
+
+#[tauri::command]
+pub async fn delete_account(
+    accounts: tauri::State<'_, AccountService>,
+    id: Uuid
+) -> Result<(),()>{
+    accounts.delete_account(id).await;
+    tracing::info!("Deleted account: {id}");
+    Ok(())
 }

@@ -16,3 +16,10 @@ async fn create_account() {
     assert_eq!(account.id, row.id);
     assert_eq!(account.name, row.name);
 }
+
+#[tokio::test]
+async fn delete_account() {
+    let accounts = AccountService::new().await;
+    let account = accounts.create_account("Name").await;
+    accounts.delete_account(account.id).await;
+}
