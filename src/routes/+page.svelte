@@ -1,19 +1,17 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	
-	let name = $state("");
-	let greetMsg = $state("");
 	
-	async function greet(event: Event) {
-		event.preventDefault();
-		// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-		greetMsg = await invoke("greet", { name });
+	async function createAccount() {
+		const account = await invoke("create_account", { name: "Transactional" });
+        console.log(account);
 	}
 </script>
 
 <main>
-    <h1>Hi</h1>
-    <p class="text-xl">Hello</p>
+    <button onclick={createAccount} class="bg-blue-500 text-white rounded-2xl p-3 cursor-pointer">
+        Create account
+    </button>
 </main>
 
 <style>

@@ -9,5 +9,4 @@
     const {children}: Props = $props();
 </script>
 
-<h1>Hi</h1>
 {@render children()}
