@@ -8,7 +8,10 @@ pub async fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(account_service)
-        .invoke_handler(tauri::generate_handler![db::create_account])
+        .invoke_handler(tauri::generate_handler![
+            db::create_account,
+            db::fetch_accounts
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
