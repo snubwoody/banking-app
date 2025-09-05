@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
-    import type { Account, Transaction } from "../lib/db";
+    import type { Account, Category, Transaction } from "../lib/db";
+    import {Select} from "melt/builders";
 	
 	let accounts: Account[] = $state([]);
+    let categories: Category[] = $state([])
     let transactions: Transaction[] = $state([]);
-    let activeAccount: string | null = $state(null);
+    let activeAccount: number | null = $state(null);
 
 	async function createAccount() {
 		const account = await invoke("create_account", { name: "Transactional" });
@@ -15,7 +17,7 @@
         accounts = await invoke("fetch_accounts");
     }
 
-    async function deleteAccount(id: string){
+    async function deleteAccount(id: number){
         await invoke("delete_account", {id})
         await fetchAccounts();
     }
@@ -25,7 +27,12 @@
             return
         }
 
-        await invoke("add_transaction",{account: activeAccount,amount: 5000});
+        await invoke("add_transaction",{
+            account: activeAccount,
+            amount: 500,
+            category: 2,
+            date: "2025-10-10"
+        });
         transactions = await invoke("get_transactions",{account: activeAccount});
     }
 
@@ -33,8 +40,14 @@
     $effect(()=>{
         fetchAccounts();
         invoke<Transaction[]>("get_transactions",{account: activeAccount})
-        .then(val => transactions = val);
-    })
+            .then(val => transactions = val);
+        invoke<Category[]>("get_categories")
+            .then(val => categories = val);
+    });
+
+    const options = ["Phone","Groceries"] as const;
+    type Option = (typeof options)[number]
+    const select = new Select<Option>()
 </script>
 
 <main class="flex h-full">
@@ -59,6 +72,23 @@
         </ul>
     </aside>
     <section class="flex-1 p-5">
+        <div class="flex">
+            <div class="flex flex-col gap-2">
+                <label {...select.label}>Category</label>
+                <button {...select.trigger} class="border border-neutral-200 rounded-2xl p-2">
+                    {select.value ?? "Select a category"}
+                </button>
+                <div {...select.content}>
+                    {#each options as option}
+                        <p {...select.getOption(option)}>{option}</p>
+                    {/each}
+                </div>
+            </div>
+            <label for="amount" class="space-y-2">
+                <p>Amount</p>
+                <input type="number" name="amount" class="border border-neutral-200">
+            </label>
+        </div>
         <div class="flex items-center justify-between">
             <p class="text-lg">Transactions</p>
             <button aria-label="Add transaction" onclick={createTransaction}>
@@ -68,7 +98,7 @@
         <ul>
             {#each transactions as transaction}
                 <li class="flex items-center justify-between">
-                    <p>Transactions</p>
+                    <p>{transaction.category.title}</p>
                     <p>$ {transaction.amount}</p>
                 </li>
             {/each}

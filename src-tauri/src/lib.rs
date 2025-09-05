@@ -14,7 +14,8 @@ pub async fn run() {
             db::fetch_accounts,
             db::delete_account,
             db::get_transactions,
-            db::add_transaction
+            db::add_transaction,
+            db::get_categories,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

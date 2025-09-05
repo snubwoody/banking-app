@@ -147,12 +147,22 @@ impl AccountService {
 }
 
 #[tauri::command]
+pub async fn get_categories(accounts: tauri::State<'_, AccountService>) -> Result<Vec<Category>,()>{
+    let categories = accounts.get_categories().await.unwrap();
+    Ok(categories)
+}
+
+#[tauri::command]
 pub async fn create_account(
     accounts: tauri::State<'_, AccountService>,
     name: String,
 ) -> Result<Account, ()> {
     let account = accounts.create_account(&name).await.unwrap();
-    tracing::info!("Created new account: {name}");
+    tracing::info!(
+        id=account.id,
+        name=account.name,
+        "Created account"
+    );
     Ok(account)
 }
 
@@ -183,6 +193,11 @@ pub async fn add_transaction(
         .add_transaction(amount, account, category, date)
         .await
         .unwrap();
+    tracing::info!(
+        date=%date,
+        amount=amount,
+        "New transaction"
+    );
     Ok(())
 }
 
