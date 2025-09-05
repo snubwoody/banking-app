@@ -1,15 +1,15 @@
-use std::str::FromStr;
 use crate::Error;
-use chrono::{NaiveDate};
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, SqlitePool};
+use std::str::FromStr;
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
 pub struct Account {
     pub id: i64,
     pub name: String,
     pub account_type: AccountType,
-    pub starting_balance: i64
+    pub starting_balance: i64,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
@@ -18,7 +18,7 @@ pub struct Transaction {
     pub account: Account,
     pub amount: i64,
     pub category: Category,
-    pub date: NaiveDate
+    pub date: NaiveDate,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
@@ -27,10 +27,10 @@ pub struct Category {
     pub title: String,
 }
 
-#[derive(Debug,Serialize,Deserialize,Default,FromRow)]
-pub struct AccountType{
+#[derive(Debug, Serialize, Deserialize, Default, FromRow)]
+pub struct AccountType {
     pub id: i64,
-    pub title: String
+    pub title: String,
 }
 
 pub struct AccountService {
@@ -40,7 +40,7 @@ pub struct AccountService {
 impl AccountService {
     pub async fn new() -> Self {
         let url = "data.db";
-        let pool = sqlx::SqlitePool::connect(&url).await.unwrap();
+        let pool = sqlx::SqlitePool::connect(url).await.unwrap();
         Self { pool }
     }
 
@@ -48,16 +48,26 @@ impl AccountService {
         Self { pool }
     }
 
-    pub async fn create_account(&self, name: &str,account_type: i64,starting_balance: i64) -> Result<i64, Error> {
-        let row = sqlx::query_file!("queries/create_account.sql",name,account_type,starting_balance)
-            .fetch_one(&self.pool)
-            .await?;
+    pub async fn create_account(
+        &self,
+        name: &str,
+        account_type: i64,
+        starting_balance: i64,
+    ) -> Result<i64, Error> {
+        let row = sqlx::query_file!(
+            "queries/create_account.sql",
+            name,
+            account_type,
+            starting_balance
+        )
+        .fetch_one(&self.pool)
+        .await?;
 
         Ok(row.id)
     }
 
-    pub async fn get_account_types(&self) -> Result<Vec<AccountType>,Error>{
-        let account_types = sqlx::query_file_as!(AccountType,"queries/get_account_types.sql")
+    pub async fn get_account_types(&self) -> Result<Vec<AccountType>, Error> {
+        let account_types = sqlx::query_file_as!(AccountType, "queries/get_account_types.sql")
             .fetch_all(&self.pool)
             .await?;
 
@@ -71,14 +81,18 @@ impl AccountService {
             .fetch_all(&self.pool)
             .await?;
 
-        let accounts: Vec<Account> = rows.into_iter().map(|row|{
-            Account{
+        let accounts: Vec<Account> = rows
+            .into_iter()
+            .map(|row| Account {
                 id: row.id,
                 name: row.name,
                 starting_balance: row.starting_balance,
-                account_type: AccountType { id: row.account_type_id, title: row.account_type }
-            }
-        }).collect();
+                account_type: AccountType {
+                    id: row.account_type_id,
+                    title: row.account_type,
+                },
+            })
+            .collect();
         Ok(accounts)
     }
 
@@ -138,45 +152,49 @@ impl AccountService {
     }
 
     /// Get all transactions belonging to a particular account.
-    pub async fn get_transactions(&self, account_id: i64) -> Result<Vec<Transaction>,Error> {
-        let rows = sqlx::query_file!("queries/get_transactions.sql",account_id)
+    pub async fn get_transactions(&self, account_id: i64) -> Result<Vec<Transaction>, Error> {
+        let rows = sqlx::query_file!("queries/get_transactions.sql", account_id)
             .fetch_all(&self.pool)
             .await?;
 
+        let transactions: Vec<Transaction> = rows
+            .into_iter()
+            .map(|row| {
+                let category = Category {
+                    id: row.category_id,
+                    title: row.category_title,
+                };
 
-        let transactions: Vec<Transaction> = rows.into_iter().map(|row|{
-            let category = Category{
-                id: row.category_id,
-                title: row.category_title
-            };
+                let account = Account {
+                    id: row.account_id,
+                    starting_balance: row.account_starting_balance,
+                    name: row.account_name,
+                    account_type: AccountType {
+                        id: row.account_type_id,
+                        title: row.account_type,
+                    },
+                };
 
-            let account = Account{
-                id: row.account_id,
-                starting_balance: row.account_starting_balance,
-                name: row.account_name,
-                account_type: AccountType { 
-                    id: row.account_type_id, 
-                    title: row.account_type
+                // FIXME
+                let date = NaiveDate::from_str(&row.date).unwrap();
+                Transaction {
+                    id: row.id,
+                    date,
+                    amount: row.amount,
+                    account,
+                    category,
                 }
-            };
-
-            // FIXME
-            let date = NaiveDate::from_str(&row.date).unwrap();
-            Transaction{
-                id: row.id,
-                date,
-                amount: row.amount,
-                account,
-                category,
-            }
-        }).collect();
+            })
+            .collect();
 
         Ok(transactions)
     }
 }
 
 #[tauri::command]
-pub async fn get_categories(accounts: tauri::State<'_, AccountService>) -> Result<Vec<Category>,()>{
+pub async fn get_categories(
+    accounts: tauri::State<'_, AccountService>,
+) -> Result<Vec<Category>, ()> {
     let categories = accounts.get_categories().await.unwrap();
     Ok(categories)
 }
@@ -186,14 +204,13 @@ pub async fn create_account(
     accounts: tauri::State<'_, AccountService>,
     name: String,
     account_type: i64,
-    starting_balance: i64
+    starting_balance: i64,
 ) -> Result<(), ()> {
-    accounts.create_account(&name,account_type,starting_balance).await.unwrap();
-    tracing::info!(
-        name,
-        starting_balance,
-        "Created account"
-    );
+    accounts
+        .create_account(&name, account_type, starting_balance)
+        .await
+        .unwrap();
+    tracing::info!(name, starting_balance, "Created account");
     Ok(())
 }
 

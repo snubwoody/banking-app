@@ -1,0 +1,51 @@
+name: Code quality
+env:
+  CARGO_TERM_COLOR: always
+  DATABASE_URL: sqlite:data.db
+concurrency:
+  group: ${{github.ref}}-${{github.workflow}}
+  cancel-in-progress: true
+on:
+  pull_request:
+    branches: ["main"]
+  push: 
+    branches: ["*"]
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cd src-tauri
+          cargo fmt --check 
+  lint: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system dependencies
+        if: ${{runner.os}} == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+      - run: cargo install sqlx-cli
+      - run: |
+          cd src-tauri
+          sqlx database create
+          sqlx migrate run
+      - run: |
+          cd src-tauri
+          cargo clippy --all-features --all-targets -- -D warnings
+  all-good:
+    needs: ["lint","format"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo Done
