@@ -1,3 +1,3 @@
-INSERT INTO transactions(amount,account,category) 
-VALUES($1,$2,$3) 
+INSERT INTO transactions(amount,account,category,date) 
+VALUES($1,$2,$3,$4) 
 RETURNING id;
