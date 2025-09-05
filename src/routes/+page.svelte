@@ -2,6 +2,7 @@
 	import { invoke } from "@tauri-apps/api/core";
     import type { Account, Category, Transaction } from "../lib/db";
     import {Select} from "melt/builders";
+    import CreateAccount from "../components/CreateAccount.svelte";
 	
 	let accounts: Account[] = $state([]);
     let categories: Category[] = $state([])
@@ -9,7 +10,7 @@
     let activeAccount: number | null = $state(null);
 
 	async function createAccount() {
-		const account = await invoke("create_account", { name: "Transactional" });
+		await invoke("create_account", { name: "Transactional" });
         await fetchAccounts();
 	}
 
@@ -54,9 +55,10 @@
     <aside class="max-w-[250px] flex-1 h-full bg-neutral-50 border-l border-neutral-300 p-3 space-y-4">
         <header class="flex items-center justify-between">
             <p class="text-lg">Accounts</p>
-            <button onclick={createAccount} aria-label="Create account">
+            <CreateAccount/>
+            <!-- <button onclick={createAccount} aria-label="Create account">
                 <i class="ph ph-plus-circle"></i>
-            </button>
+            </button> -->
         </header>
         <ul class="flex flex-col gap-4">
             {#each accounts as account}
@@ -72,23 +74,6 @@
         </ul>
     </aside>
     <section class="flex-1 p-5">
-        <div class="flex">
-            <div class="flex flex-col gap-2">
-                <label {...select.label}>Category</label>
-                <button {...select.trigger} class="border border-neutral-200 rounded-2xl p-2">
-                    {select.value ?? "Select a category"}
-                </button>
-                <div {...select.content}>
-                    {#each options as option}
-                        <p {...select.getOption(option)}>{option}</p>
-                    {/each}
-                </div>
-            </div>
-            <label for="amount" class="space-y-2">
-                <p>Amount</p>
-                <input type="number" name="amount" class="border border-neutral-200">
-            </label>
-        </div>
         <div class="flex items-center justify-between">
             <p class="text-lg">Transactions</p>
             <button aria-label="Add transaction" onclick={createTransaction}>

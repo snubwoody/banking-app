@@ -15,7 +15,8 @@
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-log": "~2",
     "@tauri-apps/plugin-opener": "^2",
-    "melt": "^0.39.0"
+    "melt": "^0.39.0",
+    "@melt-ui/svelte": "^0.86.6"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.6",

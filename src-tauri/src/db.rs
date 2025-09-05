@@ -1,7 +1,6 @@
 use std::str::FromStr;
-
 use crate::Error;
-use chrono::{Date, NaiveDate, Utc};
+use chrono::{NaiveDate};
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, SqlitePool};
 
@@ -9,6 +8,8 @@ use sqlx::{prelude::FromRow, SqlitePool};
 pub struct Account {
     pub id: i64,
     pub name: String,
+    pub account_type: AccountType,
+    pub starting_balance: i64
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
@@ -26,6 +27,12 @@ pub struct Category {
     pub title: String,
 }
 
+#[derive(Debug,Serialize,Deserialize,Default,FromRow)]
+pub struct AccountType{
+    pub id: i64,
+    pub title: String
+}
+
 pub struct AccountService {
     pool: SqlitePool,
 }
@@ -41,20 +48,37 @@ impl AccountService {
         Self { pool }
     }
 
-    pub async fn create_account(&self, name: &str) -> Result<Account, Error> {
-        let account: Account = sqlx::query_as("INSERT INTO accounts(name) VALUES($1) RETURNING *")
-            .bind(name)
+    pub async fn create_account(&self, name: &str,account_type: i64,starting_balance: i64) -> Result<i64, Error> {
+        let row = sqlx::query_file!("queries/create_account.sql",name,account_type,starting_balance)
             .fetch_one(&self.pool)
             .await?;
 
-        Ok(account)
+        Ok(row.id)
+    }
+
+    pub async fn get_account_types(&self) -> Result<Vec<AccountType>,Error>{
+        let account_types = sqlx::query_file_as!(AccountType,"queries/get_account_types.sql")
+            .fetch_all(&self.pool)
+            .await?;
+
+        Ok(account_types)
     }
 
     /// Get all the accounts.
     pub async fn get_accounts(&self) -> Result<Vec<Account>, Error> {
-        let accounts: Vec<Account> = sqlx::query_as("SELECT * FROM accounts")
+        // FIXME
+        let rows = sqlx::query_file!("queries/get_accounts.sql")
             .fetch_all(&self.pool)
             .await?;
+
+        let accounts: Vec<Account> = rows.into_iter().map(|row|{
+            Account{
+                id: row.id,
+                name: row.name,
+                starting_balance: row.starting_balance,
+                account_type: AccountType { id: row.account_type_id, title: row.account_type }
+            }
+        }).collect();
         Ok(accounts)
     }
 
@@ -128,7 +152,12 @@ impl AccountService {
 
             let account = Account{
                 id: row.account_id,
-                name: row.account_name
+                starting_balance: row.account_starting_balance,
+                name: row.account_name,
+                account_type: AccountType { 
+                    id: row.account_type_id, 
+                    title: row.account_type
+                }
             };
 
             // FIXME
@@ -156,14 +185,16 @@ pub async fn get_categories(accounts: tauri::State<'_, AccountService>) -> Resul
 pub async fn create_account(
     accounts: tauri::State<'_, AccountService>,
     name: String,
-) -> Result<Account, ()> {
-    let account = accounts.create_account(&name).await.unwrap();
+    account_type: i64,
+    starting_balance: i64
+) -> Result<(), ()> {
+    accounts.create_account(&name,account_type,starting_balance).await.unwrap();
     tracing::info!(
-        id=account.id,
-        name=account.name,
+        name,
+        starting_balance,
         "Created account"
     );
-    Ok(account)
+    Ok(())
 }
 
 #[tauri::command]
@@ -208,4 +239,12 @@ pub async fn get_transactions(
 ) -> Result<Vec<Transaction>, ()> {
     let transactions = accounts.get_transactions(account).await.unwrap();
     Ok(transactions)
+}
+
+#[tauri::command]
+pub async fn get_account_types(
+    accounts: tauri::State<'_, AccountService>,
+) -> Result<Vec<AccountType>, ()> {
+    let account_types = accounts.get_account_types().await.unwrap();
+    Ok(account_types)
 }
