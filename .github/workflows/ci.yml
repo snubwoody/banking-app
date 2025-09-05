@@ -1,4 +1,10 @@
 name: CI/CD
+env:
+  CARGO_TERM_COLOR: always
+  DATABASE_URL: sqlite:data.db
+concurrency:
+  group: ${{github.ref}}-${{github.workflow}}
+  cancel-in-progress: true
 on:
   pull_request:
     branches: ["main"]
@@ -30,14 +36,33 @@ jobs:
         with:
           node-version: 24
           cache: 'pnpm'
+      - run: cargo install sqlx-cli
       - run: pnpm install
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+      - run: pnpm tauri info
+      - run: |
+          cd src-tauri
+          sqlx database create
+          sqlx migrate run
       - run: pnpm tauri build
   test:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest,windows-latest,macos-latest]
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -47,7 +72,25 @@ jobs:
             ~/.cargo
           key: ${{runner.os}}-${{hashFiles('**/Cargo.lock')}}
           restore-keys: ${{runner.os}}-
+      - run: cargo install sqlx-cli
       - uses: taiki-e/install-action@cargo-nextest
+      - run: |
+          cd src-tauri
+          sqlx database create
+          sqlx migrate run
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
       - run: |
           cd src-tauri
           cargo nextest run
