@@ -1,11 +1,17 @@
 
 export type Account = {
-    id: string,
+    id: number,
     name: string
 }
 
 export type Transaction = {
-    id: string,
-    account: string,
-    amount: number
+    id: number,
+    amount: number,
+    category: Category,
+    account: Account
+}
+
+export type Category = {
+    id: number,
+    title: string
 }
