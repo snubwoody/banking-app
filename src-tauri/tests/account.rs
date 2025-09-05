@@ -1,30 +1,29 @@
-use banking_app_lib::{db::Account, AccountService, Error};
+use banking_app_lib::{AccountService, Error};
 use chrono::NaiveDate;
 use sqlx::SqlitePool;
 
 #[sqlx::test]
 async fn create_account(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
-    let account = accounts.create_account("Name").await?;
-    let row: Account = sqlx::query_as("SELECT * FROM accounts WHERE id=$1")
-        .bind(account.id)
+    let id = accounts.create_account("Name",1,240).await?;
+    let row = sqlx::query!("SELECT * FROM accounts WHERE id=$1",id)
         .fetch_one(&pool)
         .await?;
 
-    assert_eq!(account.id, row.id);
-    assert_eq!(account.name, row.name);
+    assert_eq!(row.starting_balance,240);
+    assert_eq!(&row.name,"Name");
     Ok(())
 }
 
 #[sqlx::test]
 async fn delete_account(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
-    let account = accounts.create_account("Name").await?;
+    let id = accounts.create_account("Name",1,200).await?;
     let rows = sqlx::query!("SELECT * FROM accounts")
         .fetch_all(&pool)
         .await?;
     assert_eq!(rows.len(), 1);
-    accounts.delete_account(account.id).await?;
+    accounts.delete_account(id).await?;
     let rows = sqlx::query!("SELECT * FROM accounts")
         .fetch_all(&pool)
         .await?;
@@ -35,9 +34,9 @@ async fn delete_account(pool: SqlitePool) -> Result<(), Error> {
 #[sqlx::test]
 async fn get_accounts(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
-    accounts.create_account("Name").await?;
-    accounts.create_account("Name").await?;
-    accounts.create_account("Name").await?;
+    accounts.create_account("Name",1,0).await?;
+    accounts.create_account("Name",1,0).await?;
+    accounts.create_account("Name",1,0).await?;
     let all_accounts = accounts.get_accounts().await?;
     assert_eq!(all_accounts.len(), 3);
     Ok(())
@@ -78,12 +77,12 @@ async fn get_categories(pool: SqlitePool) -> Result<(), Error> {
 #[sqlx::test]
 async fn add_transaction(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
-    let account = accounts.create_account("").await?;
+    let id = accounts.create_account("",1,2).await?;
     let category = &accounts.get_categories().await?[0];
     let date = NaiveDate::parse_from_str("2025-10-04", "%Y-%m-%d").unwrap();
 
     let id = accounts
-        .add_transaction(100, account.id, category.id, date)
+        .add_transaction(100, id, category.id, date)
         .await?;
     let transaction = sqlx::query!("SELECT * FROM transactions WHERE id=$1", id)
         .fetch_one(&pool)
@@ -91,24 +90,24 @@ async fn add_transaction(pool: SqlitePool) -> Result<(), Error> {
 
     assert_eq!(transaction.amount, 100);
     assert_eq!(transaction.category, category.id);
-    assert_eq!(transaction.account, account.id);
+    assert_eq!(transaction.account, id);
     Ok(())
 }
 
 #[sqlx::test]
 async fn get_transactions(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
-    let account = accounts.create_account("").await?;
+    let id = accounts.create_account("",1,20).await?;
     let category = &accounts.get_categories().await?[0];
     let date = NaiveDate::parse_from_str("2025-10-04", "%Y-%m-%d").unwrap();
 
     accounts
-        .add_transaction(100, account.id, category.id, date)
+        .add_transaction(100, id, category.id, date)
         .await?;
     accounts
-        .add_transaction(500, account.id, category.id, date)
+        .add_transaction(500, id, category.id, date)
         .await?;
-    let transactions = accounts.get_transactions(account.id).await?;
+    let transactions = accounts.get_transactions(id).await?;
     assert_eq!(transactions.len(),2);
     Ok(())
 }
