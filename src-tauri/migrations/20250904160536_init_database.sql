@@ -1,7 +1,19 @@
 -- Add migration script here
+CREATE TABLE account_type(
+    id INTEGER PRIMARY KEY NOT NULL,
+    title TEXT UNIQUE NOT NULL
+);
+
+INSERT INTO account_type(title)
+VALUES 
+    ('Chequing'),
+    ('Savings');
+
 CREATE TABLE accounts(
     id INTEGER PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    starting_balance INTEGER NOT NULL DEFAULT 0,
+    account_type INTEGER NOT NULL REFERENCES account_type(id) DEFAULT 1
 );
 
 CREATE TABLE categories(
@@ -17,6 +29,7 @@ VALUES
     ('Hospital'),
     ('Taxes'),
     ('Insurance'),
+    ('Correction'),
     ('Miscellaneous');
 
 
