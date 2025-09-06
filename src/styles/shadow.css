@@ -1,0 +1,13 @@
+@theme{
+    --shadow-*: initial;
+    --shadow-sm: 0px 4px 10px -5px --alpha(var(--color-blue-500) / 25%);
+    --shadow-md: 
+        0px 4px 4px 0px --alpha(var(--color-blue-500) / 5%) 
+        0px 4px 43px 8px --alpha(var(--color-blue-500) /6%);
+    --shadow-lg:
+        0px 4px 28px -5px --alpha(var(--color-blue-500) / 10%)
+        0px 4px 11px -5px --alpha(var(--color-blue-500) / 25%);
+    --shadow-xl:
+        0px 4px 10px -2px --alpha(var(--color-blue-500) / 20%)
+        0px 4px 70px 5px --alpha(var(--color-blue-500) / 15%);
+}

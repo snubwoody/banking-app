@@ -2,7 +2,9 @@
 	import { invoke } from "@tauri-apps/api/core";
     import type { Account, Transaction } from "../lib/db";
     import CreateAccount from "../components/CreateAccount.svelte";
+    import AddTransaction from "../components/AddTransaction.svelte";
 	
+    // TODO: make global transaction store
 	let accounts: Account[] = $state([]);
     let transactions: Transaction[] = $state([]);
     let activeAccount: number | null = $state(null);
@@ -60,9 +62,7 @@
     <section class="flex-1 p-5">
         <div class="flex items-center justify-between">
             <p class="text-lg">Transactions</p>
-            <button aria-label="Add transaction" onclick={createTransaction}>
-                <i class="ph ph-plus-circle"></i>
-            </button>
+            <AddTransaction/>
         </div>
         <ul class="transaction-grid">
             <!--Table heading-->

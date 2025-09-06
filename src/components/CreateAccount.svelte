@@ -44,7 +44,7 @@
 {#if open}
     <div {...$portalled} use:portalled>
         <aside transition:fly={{x: 250}} {...$content} use:content>
-            <h2 {...$title} use:title class="text-2xl">Add account</h2>
+            <h6 {...$title} use:title class="text-2xl">Add account</h6>
             <div class="flex flex-col gap-5">
                 <label class="space-y-2">
                     <p>Name</p>
