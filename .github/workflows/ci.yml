@@ -24,6 +24,7 @@ jobs:
           path: |
             ./src-tauri/target
             ~/.cargo
+          # TODO: Add -cargo- in next edit
           key: ${{runner.os}}-${{hashFiles('**/Cargo.lock')}}
           restore-keys: ${{runner.os}}-
       - uses: pnpm/action-setup@v4
