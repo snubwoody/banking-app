@@ -1,0 +1,25 @@
+@theme{
+    --color-blue-50: hsla(213, 100%, 95%, 1);
+    --color-blue-100: hsla(212, 96%, 90%, 1);
+    --color-blue-200: hsla(209, 96%, 79%, 1);
+    --color-blue-300: hsla(203, 97%, 63%, 1);
+    --color-blue-400: hsla(201, 78%, 49%, 1);
+    --color-blue-500: hsla(201, 79%, 40%, 1);
+    --color-blue-600: hsla(201, 83%, 31%, 1);
+    --color-blue-700: hsla(201, 87%, 23%, 1);
+    --color-blue-800: hsla(202, 90%, 16%, 1);
+    --color-blue-900: hsla(203, 92%, 10%, 1);
+    --color-blue-950: hsla(207, 94%, 6%, 1);
+    
+    --color-neutral-50: hsla(0, 0%, 97%, 1);
+    --color-neutral-100: hsla(0, 0%, 90%, 1);
+    --color-neutral-200: hsla(0, 0%, 80%, 1);
+    --color-neutral-300: hsla(0, 0%, 74%, 1);
+    --color-neutral-400: hsla(0, 0%, 62%, 1);
+    --color-neutral-500: hsla(0, 0%, 50%, 1);
+    --color-neutral-600: hsla(0, 0%, 47%, 1);
+    --color-neutral-700: hsla(0, 0%, 39%, 1);
+    --color-neutral-800: hsla(0, 0%, 24%, 1);
+    --color-neutral-900: hsla(0, 0%, 16%, 1);
+    --color-neutral-950: hsla(0, 0%, 9%, 1);
+}
