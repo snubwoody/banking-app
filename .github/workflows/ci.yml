@@ -50,7 +50,8 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev
       - run: pnpm tauri info
-      - run: |
+      - name: Setup database
+        run: |
           cd src-tauri
           sqlx database create
           sqlx migrate run
@@ -72,7 +73,8 @@ jobs:
           restore-keys: ${{runner.os}}-cargo-
       - run: cargo install sqlx-cli
       - uses: taiki-e/install-action@cargo-nextest
-      - run: |
+      - name: Setup database
+        run: |
           cd src-tauri
           sqlx database create
           sqlx migrate run
@@ -89,6 +91,7 @@ jobs:
             libssl-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev
-      - run: |
+      - name: Run tests
+        run: |
           cd src-tauri
           cargo nextest run

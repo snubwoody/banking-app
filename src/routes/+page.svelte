@@ -1,53 +1,41 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
-    import type { Account, Category, Transaction } from "../lib/db";
-    import {Select} from "melt/builders";
+    import type { Account, Transaction } from "../lib/db";
     import CreateAccount from "../components/CreateAccount.svelte";
 	
 	let accounts: Account[] = $state([]);
-    let categories: Category[] = $state([])
     let transactions: Transaction[] = $state([]);
     let activeAccount: number | null = $state(null);
-
-	async function createAccount() {
-		await invoke("create_account", { name: "Transactional" });
-        await fetchAccounts();
-	}
 
     async function fetchAccounts() {
         accounts = await invoke("fetch_accounts");
     }
 
     async function deleteAccount(id: number){
-        await invoke("delete_account", {id})
+        await invoke("delete_account", {id});
         await fetchAccounts();
     }
 
     async function createTransaction(){
         if (!activeAccount){
-            return
+            return;
         }
 
-        await invoke("add_transaction",{
+        await invoke("add_transaction", {
             account: activeAccount,
             amount: 500,
             category: 2,
             date: "2025-10-10"
         });
-        transactions = await invoke("get_transactions",{account: activeAccount});
+        transactions = await invoke("get_transactions", {account: activeAccount});
     }
 
 
-    $effect(()=>{
+    $effect(() => {
         fetchAccounts();
-        invoke<Transaction[]>("get_transactions",{account: activeAccount})
+        invoke<Transaction[]>("get_transactions", {account: activeAccount})
             .then(val => transactions = val);
-        invoke<Category[]>("get_categories")
-            .then(val => categories = val);
     });
-
-    const options = ["Phone","Groceries"] as const;
-    type Option = (typeof options)[number]
 </script>
 
 <main class="flex h-full">
@@ -57,12 +45,12 @@
             <CreateAccount/>
         </header>
         <ul class="flex flex-col gap-4">
-            {#each accounts as account}
+            {#each accounts as account (account.id)}
                 <li class="flex items-center justify-between">
-                    <button onclick={()=>{activeAccount = account.id}}>
+                    <button onclick={() => { activeAccount = account.id; }}>
                         {account.name}
                     </button>
-                    <button aria-label="Delete account" onclick={()=>deleteAccount(account.id)}>
+                    <button aria-label="Delete account" onclick={() => deleteAccount(account.id)}>
                         <i class="ph ph-x-circle"></i>
                     </button>
                 </li>
@@ -76,14 +64,29 @@
                 <i class="ph ph-plus-circle"></i>
             </button>
         </div>
-        <ul>
-            {#each transactions as transaction}
-                <li class="flex items-center justify-between">
-                    <p>{transaction.category.title}</p>
-                    <p>$ {transaction.amount}</p>
-                </li>
+        <ul class="transaction-grid">
+            <!--Table heading-->
+            <li>Category</li>
+            <li>Date</li>
+            <li>Account</li>
+            <li>Amount</li>
+            <!--Table rows-->
+            {#each transactions as transaction (transaction.id)}
+                <li>{transaction.category.title}</li>
+                <!--TODO: format date-->
+                <li>{transaction.date}</li>
+                <li>{transaction.account.name}</li>
+                <li>$ {transaction.amount}</li>
             {/each}
         </ul>
     </section>
 </main>
+
+<style>
+    .transaction-grid{
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 20px;
+    }
+</style>
 
