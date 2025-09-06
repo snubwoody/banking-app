@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
-    import type { Account, Category, Transaction } from "../lib/db";
+    import type { Account, Transaction } from "../lib/db";
     import CreateAccount from "../components/CreateAccount.svelte";
 	
 	let accounts: Account[] = $state([]);
-    let categories: Category[] = $state([]);
     let transactions: Transaction[] = $state([]);
     let activeAccount: number | null = $state(null);
 
@@ -36,12 +35,7 @@
         fetchAccounts();
         invoke<Transaction[]>("get_transactions", {account: activeAccount})
             .then(val => transactions = val);
-        invoke<Category[]>("get_categories")
-            .then(val => categories = val);
     });
-
-    const options = ["Phone", "Groceries"] as const;
-    type Option = (typeof options)[number];
 </script>
 
 <main class="flex h-full">
@@ -51,7 +45,7 @@
             <CreateAccount/>
         </header>
         <ul class="flex flex-col gap-4">
-            {#each accounts as account}
+            {#each accounts as account (account.id)}
                 <li class="flex items-center justify-between">
                     <button onclick={() => { activeAccount = account.id; }}>
                         {account.name}
@@ -77,7 +71,7 @@
             <li>Account</li>
             <li>Amount</li>
             <!--Table rows-->
-            {#each transactions as transaction}
+            {#each transactions as transaction (transaction.id)}
                 <li>{transaction.category.title}</li>
                 <!--TODO: format date-->
                 <li>{transaction.date}</li>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {createDialog, melt} from "@melt-ui/svelte"; 
+    import {createDialog} from "@melt-ui/svelte"; 
     import {fly} from "svelte/transition";
     import {invoke} from "@tauri-apps/api/core";
     import type { AccountType } from "$lib/db";
@@ -17,10 +17,7 @@
     const {
         elements: {
             trigger,
-            overlay,
             title,
-            description,
-            close,
             content,
             portalled,
         },
@@ -65,7 +62,7 @@
                     </button>
                 </label>
                 <ul {...select.content} class="shadow bg-white rounded-2xl p-2">
-                    {#each accountTypes as accountType}
+                    {#each accountTypes as accountType (accountType.id)}
                          <li {...select.getOption(accountType)} class="hover:bg-neutral-50 transition-all p-2 rounded-2xl">
                             {accountType.title}
                         </li>
