@@ -65,6 +65,7 @@ jobs:
         with:
           node-version: 24
           cache: 'pnpm'
+      - run: pnpm install
       - name: Lint frontend
         run: pnpm lint
   all-good:
