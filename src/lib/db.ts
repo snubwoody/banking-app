@@ -8,7 +8,8 @@ export type Transaction = {
     id: number,
     amount: number,
     category: Category,
-    account: Account
+    account: Account,
+    date: string
 }
 
 export type Category = {

@@ -1,18 +1,12 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
     import type { Account, Category, Transaction } from "../lib/db";
-    import {Select} from "melt/builders";
     import CreateAccount from "../components/CreateAccount.svelte";
 	
 	let accounts: Account[] = $state([]);
     let categories: Category[] = $state([])
     let transactions: Transaction[] = $state([]);
     let activeAccount: number | null = $state(null);
-
-	async function createAccount() {
-		await invoke("create_account", { name: "Transactional" });
-        await fetchAccounts();
-	}
 
     async function fetchAccounts() {
         accounts = await invoke("fetch_accounts");
@@ -76,14 +70,29 @@
                 <i class="ph ph-plus-circle"></i>
             </button>
         </div>
-        <ul>
+        <ul class="transaction-grid">
+            <!--Table heading-->
+            <li>Category</li>
+            <li>Date</li>
+            <li>Account</li>
+            <li>Amount</li>
+            <!--Table rows-->
             {#each transactions as transaction}
-                <li class="flex items-center justify-between">
-                    <p>{transaction.category.title}</p>
-                    <p>$ {transaction.amount}</p>
-                </li>
+                <li>{transaction.category.title}</li>
+                <!--TODO: format date-->
+                <li>{transaction.date}</li>
+                <li>{transaction.account.name}</li>
+                <li>$ {transaction.amount}</li>
             {/each}
         </ul>
     </section>
 </main>
+
+<style>
+    .transaction-grid{
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 20px;
+    }
+</style>
 
