@@ -8,8 +8,6 @@ concurrency:
 on:
   pull_request:
     branches: ["main"]
-  push: 
-    branches: ["*"]
 jobs:
   build:
     strategy:
@@ -24,9 +22,8 @@ jobs:
           path: |
             ./src-tauri/target
             ~/.cargo
-          # TODO: Add -cargo- in next edit
-          key: ${{runner.os}}-${{hashFiles('**/Cargo.lock')}}
-          restore-keys: ${{runner.os}}-
+          key: ${{runner.os}}-cargo-${{hashFiles('**/Cargo.lock')}}
+          restore-keys: ${{runner.os}}-cargo-
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -71,8 +68,8 @@ jobs:
           path: |
             ./src-tauri/target
             ~/.cargo
-          key: ${{runner.os}}-${{hashFiles('**/Cargo.lock')}}
-          restore-keys: ${{runner.os}}-
+          key: ${{runner.os}}-cargo-${{hashFiles('**/Cargo.lock')}}
+          restore-keys: ${{runner.os}}-cargo-
       - run: cargo install sqlx-cli
       - uses: taiki-e/install-action@cargo-nextest
       - run: |

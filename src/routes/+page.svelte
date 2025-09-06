@@ -48,7 +48,6 @@
 
     const options = ["Phone","Groceries"] as const;
     type Option = (typeof options)[number]
-    const select = new Select<Option>()
 </script>
 
 <main class="flex h-full">
@@ -56,9 +55,6 @@
         <header class="flex items-center justify-between">
             <p class="text-lg">Accounts</p>
             <CreateAccount/>
-            <!-- <button onclick={createAccount} aria-label="Create account">
-                <i class="ph ph-plus-circle"></i>
-            </button> -->
         </header>
         <ul class="flex flex-col gap-4">
             {#each accounts as account}

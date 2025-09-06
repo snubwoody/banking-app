@@ -32,9 +32,12 @@
     });
 
     async function createAccount(){
+        console.log(accountType,name)
         if(name === "" || !accountType){
             return
         }
+
+        await invoke("create_account",{name,accountType: accountType.id,startingBalance})
     }
 </script>
 
@@ -69,7 +72,9 @@
                     {/each}
                 </ul>
             </div>
-            <button class="bg-[#005F78] p-3 rounded-lg text-white mt-auto">Confirm</button>
+            <button onclick={createAccount} class="bg-[#005F78] p-3 rounded-lg text-white mt-auto">
+                Confirm
+            </button>
         </aside>
     </div>
 {/if}
