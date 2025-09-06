@@ -4,7 +4,7 @@
     import CreateAccount from "../components/CreateAccount.svelte";
 	
 	let accounts: Account[] = $state([]);
-    let categories: Category[] = $state([])
+    let categories: Category[] = $state([]);
     let transactions: Transaction[] = $state([]);
     let activeAccount: number | null = $state(null);
 
@@ -13,13 +13,13 @@
     }
 
     async function deleteAccount(id: number){
-        await invoke("delete_account", {id})
+        await invoke("delete_account", {id});
         await fetchAccounts();
     }
 
     async function createTransaction(){
         if (!activeAccount){
-            return
+            return;
         }
 
         await invoke("add_transaction",{
@@ -41,7 +41,7 @@
     });
 
     const options = ["Phone","Groceries"] as const;
-    type Option = (typeof options)[number]
+    type Option = (typeof options)[number];
 </script>
 
 <main class="flex h-full">
@@ -53,7 +53,7 @@
         <ul class="flex flex-col gap-4">
             {#each accounts as account}
                 <li class="flex items-center justify-between">
-                    <button onclick={()=>{activeAccount = account.id}}>
+                    <button onclick={()=>{activeAccount = account.id;}}>
                         {account.name}
                     </button>
                     <button aria-label="Delete account" onclick={()=>deleteAccount(account.id)}>

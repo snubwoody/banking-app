@@ -28,16 +28,16 @@
     } = createDialog();
 
     const select = new Select<AccountType>({
-        onValueChange: (value) => {accountType = value}
+        onValueChange: (value) => {accountType = value;}
     });
 
     async function createAccount(){
-        console.log(accountType,name)
+        console.log(accountType,name);
         if(name === "" || !accountType){
-            return
+            return;
         }
 
-        await invoke("create_account",{name,accountType: accountType.id,startingBalance})
+        await invoke("create_account",{name,accountType: accountType.id,startingBalance});
     }
 </script>
 
