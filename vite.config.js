@@ -7,7 +7,7 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-    plugins: [sveltekit(),tailwindcss()],
+    plugins: [sveltekit(), tailwindcss()],
     // 1. prevent Vite from obscuring rust errors
     clearScreen: false,
     // 2. tauri expects a fixed port, fail if that port is not available
@@ -24,7 +24,7 @@ export default defineConfig(async () => ({
             : undefined,
         watch: {
             // 3. tell Vite to ignore watching `src-tauri`
-            ignored: ["**/src-tauri/**","**/*.db*"],
+            ignored: ["**/src-tauri/**", "**/*.db*"],
         },
     },
 }));

@@ -19,11 +19,14 @@ export default defineConfig([
         files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], 
         plugins: { js }, 
         extends: ["js/recommended"], 
-        languageOptions: { globals: {...globals.browser, ...globals.node} } 
+        languageOptions: { globals: {...globals.browser, ...globals.node} },
+        rules: {
+            "prefer-const": ["warn"]
+        }
     },
     tseslint.configs.recommended,
     {
-        files: ["**/*.svelte","**/*.svelte.{js,ts}"],
+        files: ["**/*.svelte", "**/*.svelte.{js,ts}"],
         extends: svelte.configs.recommended,
         languageOptions: {
             parserOptions:{
@@ -39,8 +42,12 @@ export default defineConfig([
         plugins: {"@stylistic": stylistic},
         rules: {
             "@stylistic/semi": "error",
-            "@stylistic/quotes": ["warn","double"],
-            "@stylistic/indent": ["warn",4],
-        }
-    }
+            "@stylistic/quotes": ["error", "double"],
+            "@stylistic/indent": ["warn", 4],
+            "@stylistic/arrow-spacing":["warn"],
+            "@stylistic/block-spacing":["warn"],
+            "@stylistic/comma-spacing":["warn", {"before": false, "after": true}],
+            "@stylistic/new-parens": ["error"]
+        },
+    },
 ]);

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {createDialog,melt} from "@melt-ui/svelte"; 
+    import {createDialog, melt} from "@melt-ui/svelte"; 
     import {fly} from "svelte/transition";
     import {invoke} from "@tauri-apps/api/core";
     import type { AccountType } from "$lib/db";
@@ -10,7 +10,7 @@
     let accountType: AccountType | undefined;
     let name: string = $state("");
     let startingBalance: number = $state(0);
-    onMount(()=>{
+    onMount(() => {
         invoke<AccountType[]>("get_account_types").then(val => accountTypes = val);
     });
 
@@ -28,16 +28,16 @@
     } = createDialog();
 
     const select = new Select<AccountType>({
-        onValueChange: (value) => {accountType = value;}
+        onValueChange: (value) => { accountType = value; }
     });
 
     async function createAccount(){
-        console.log(accountType,name);
+        console.log(accountType, name);
         if(name === "" || !accountType){
             return;
         }
 
-        await invoke("create_account",{name,accountType: accountType.id,startingBalance});
+        await invoke("create_account", {name, accountType: accountType.id, startingBalance});
     }
 </script>
 

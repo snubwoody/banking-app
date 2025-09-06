@@ -22,25 +22,25 @@
             return;
         }
 
-        await invoke("add_transaction",{
+        await invoke("add_transaction", {
             account: activeAccount,
             amount: 500,
             category: 2,
             date: "2025-10-10"
         });
-        transactions = await invoke("get_transactions",{account: activeAccount});
+        transactions = await invoke("get_transactions", {account: activeAccount});
     }
 
 
-    $effect(()=>{
+    $effect(() => {
         fetchAccounts();
-        invoke<Transaction[]>("get_transactions",{account: activeAccount})
+        invoke<Transaction[]>("get_transactions", {account: activeAccount})
             .then(val => transactions = val);
         invoke<Category[]>("get_categories")
             .then(val => categories = val);
     });
 
-    const options = ["Phone","Groceries"] as const;
+    const options = ["Phone", "Groceries"] as const;
     type Option = (typeof options)[number];
 </script>
 
@@ -53,10 +53,10 @@
         <ul class="flex flex-col gap-4">
             {#each accounts as account}
                 <li class="flex items-center justify-between">
-                    <button onclick={()=>{activeAccount = account.id;}}>
+                    <button onclick={() => { activeAccount = account.id; }}>
                         {account.name}
                     </button>
-                    <button aria-label="Delete account" onclick={()=>deleteAccount(account.id)}>
+                    <button aria-label="Delete account" onclick={() => deleteAccount(account.id)}>
                         <i class="ph ph-x-circle"></i>
                     </button>
                 </li>
