@@ -5,9 +5,9 @@
     type Props = {
         trigger: Snippet,
         body: Snippet
-    }
+    };
 
-    const {trigger: activate, body}: Props = $props()
+    const {trigger: activate, body}: Props = $props();
     const {
         elements: {
             trigger,

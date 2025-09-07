@@ -1,17 +1,5 @@
 <script lang="ts">
     import Drawer from "./Drawer.svelte";
-    import { invoke } from "@tauri-apps/api/core";
-    import type { Account, Transaction } from "../lib/db";
-	
-
-    async function createTransaction(){
-        await invoke("add_transaction", {
-            account: 1,
-            amount: 500,
-            category: 2,
-            date: "2025-10-10"
-        });
-    }
 </script>
 
 <Drawer>

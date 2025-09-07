@@ -19,21 +19,6 @@
         await fetchAccounts();
     }
 
-    async function createTransaction(){
-        if (!activeAccount){
-            return;
-        }
-
-        await invoke("add_transaction", {
-            account: activeAccount,
-            amount: 500,
-            category: 2,
-            date: "2025-10-10"
-        });
-        transactions = await invoke("get_transactions", {account: activeAccount});
-    }
-
-
     $effect(() => {
         fetchAccounts();
         invoke<Transaction[]>("get_transactions", {account: activeAccount})
