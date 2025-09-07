@@ -1,0 +1,21 @@
+
+.btn{
+    display: flex;
+    padding: 8px 12px;
+    gap: 4px;
+    border-radius: var(--radius-md);
+}
+
+.btn-primary{
+    background-color: var(--color-blue-500);
+    color: white;
+    transition: all 250ms;
+
+    &:hover{
+        background-color: var(--color-blue-600);
+    }
+
+    &:active{
+        background-color: var(--color-blue-700);
+    }
+}
