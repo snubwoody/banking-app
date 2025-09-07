@@ -1,6 +1,7 @@
 <script lang="ts">
     import { accountStore } from "$lib/account.svelte";
     import Dialog from "./Dialog.svelte";
+    import TextField from "./TextField.svelte";
 </script>
 
 <section>   
@@ -23,9 +24,9 @@
         {/snippet}
         {#snippet body()}
             <div>
-                <p>Name</p>
+                <TextField label="Name" name="accountName"/>
                 <p>Account type</p>
-                <p>Starting balance</p>
+                <TextField label="Starting balance" type="number" name="accountName"/>
             </div>
         {/snippet}
         {#snippet actions()}
