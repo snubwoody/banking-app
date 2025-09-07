@@ -1,4 +1,4 @@
-import {test, expect} from "vitest";
+import {test,} from "vitest";
 import { accountStore } from "$lib/account.svelte";
 
 test("Create account store", () => {

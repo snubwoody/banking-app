@@ -5,7 +5,7 @@
 <section>   
     <h6>Accounts</h6>
     <ul>
-        {#each accountStore.accounts as account}
+        {#each accountStore.accounts as account (account.id)}
             <li class="flex justify-between items-center">
                 <div>
                     <p>{account.name}</p>

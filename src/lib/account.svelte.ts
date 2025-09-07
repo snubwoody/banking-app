@@ -7,12 +7,9 @@ export class AccountStore{
 
     constructor(){
         invoke<Account[]>("fetch_accounts")
-            .then(val => {console.log(val); this.accounts = val;});
+            .then(val => { console.log(val); this.accounts = val; });
     }
 
-    async addAccount(name: string, startingBalance: number) {
-        
-    }
 }
 
 /**
