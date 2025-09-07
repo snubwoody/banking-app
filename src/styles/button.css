@@ -1,7 +1,10 @@
 
 .btn{
+    @apply text-sm;
     display: flex;
     padding: 8px 12px;
+    justify-content: center;
+    align-items: center;
     gap: 4px;
     border-radius: var(--radius-md);
 }

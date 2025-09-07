@@ -1,5 +1,6 @@
 <script lang="ts">
     import { accountStore } from "$lib/account.svelte";
+    import Dialog from "./Dialog.svelte";
 </script>
 
 <section>   
@@ -16,7 +17,24 @@
             </li>
         {/each}
     </ul>
-    <button>Add account</button>
+    <Dialog title="Add account">
+        {#snippet trigger()}
+            Add account
+        {/snippet}
+        {#snippet body()}
+            <div>
+                <p>Name</p>
+                <p>Account type</p>
+                <p>Starting balance</p>
+            </div>
+        {/snippet}
+        {#snippet actions()}
+            <button class="btn btn-primary w-full">
+                <i class="ph ph-plus"></i>
+                Add account
+            </button>
+        {/snippet}
+    </Dialog>
 </section>
 
 <style>
