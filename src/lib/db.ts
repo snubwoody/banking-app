@@ -1,7 +1,9 @@
 
 export type Account = {
     id: number,
-    name: string
+    name: string,
+    starting_balance: number,
+    account_type: AccountType
 };
 
 export type Transaction = {

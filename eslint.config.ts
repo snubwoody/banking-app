@@ -45,7 +45,8 @@ export default defineConfig([
             "@stylistic/arrow-spacing":["warn"],
             "@stylistic/block-spacing":["warn"],
             "@stylistic/comma-spacing":["warn", {"before": false, "after": true}],
-            "@stylistic/new-parens": ["error"]
+            "@stylistic/new-parens": ["error"],
+            "@typescript-eslint/no-unused-vars": ["warn"],
         },
     },
 ]);

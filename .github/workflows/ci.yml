@@ -20,8 +20,14 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
+            ~/.cargo/bin
+          key: ${{runner.os}}-cargo-bin
+      - uses: actions/cache@v4
+        with:
+          path: |
             ./src-tauri/target
-            ~/.cargo
+            ~/.cargo/git
+            ~/.cargo/registry
           key: ${{runner.os}}-cargo-${{hashFiles('**/Cargo.lock')}}
           restore-keys: ${{runner.os}}-cargo-
       - uses: pnpm/action-setup@v4
@@ -67,8 +73,14 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
+            ~/.cargo/bin
+          key: ${{runner.os}}-cargo-bin
+      - uses: actions/cache@v4
+        with:
+          path: |
             ./src-tauri/target
-            ~/.cargo
+            ~/.cargo/registry
+            ~/.cargo/git
           key: ${{runner.os}}-cargo-${{hashFiles('**/Cargo.lock')}}
           restore-keys: ${{runner.os}}-cargo-
       - run: cargo install sqlx-cli

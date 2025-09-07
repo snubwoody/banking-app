@@ -23,10 +23,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
         with:
+          path: |
+            ~/.cargo/bin
+          key: ${{runner.os}}-cargo-bin
+      - uses: actions/cache@v4
+        with:
           key: ${{runner.os}}-cargo-${{hashFiles('**/Cargo.lock')}}
           restore-keys: ${{runner.os}}-cargo-
           path: |
-            ~/.cargo
+            ~/.cargo/registry
+            ~/.cargo/git
             ./src-tauri/target
       - name: Install system dependencies
         if: ${{runner.os}} == 'Linux'
