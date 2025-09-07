@@ -1,7 +1,7 @@
 use crate::Error;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, SqlitePool};
+use sqlx::{SqlitePool, prelude::FromRow};
 use std::str::FromStr;
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
