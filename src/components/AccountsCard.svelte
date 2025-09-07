@@ -1,13 +1,20 @@
 <script lang="ts">
-
+    import { accountStore } from "$lib/account.svelte";
 </script>
 
 <section>   
     <h6>Accounts</h6>
     <ul>
-        <li>RBC Savings</li>
-        <li>Absa Savings</li>
-        <li>Credit card</li>
+        {#each accountStore.accounts as account}
+            <li class="flex justify-between items-center">
+                <div>
+                    <p>{account.name}</p>
+                    <p class="text-sm">{account.account_type.title}</p>
+                </div>
+                <!--Replace with balance-->
+                <h6>$ {account.starting_balance}</h6>
+            </li>
+        {/each}
     </ul>
     <button>Add account</button>
 </section>
