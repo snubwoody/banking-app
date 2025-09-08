@@ -1,23 +1,9 @@
 <script lang="ts">
-	import { invoke } from "@tauri-apps/api/core";
-    import type { Account, Transaction } from "../lib/db";
-    import CreateAccount from "../components/CreateAccount.svelte";
+    import type { Transaction } from "../lib/db";
     import AddTransaction from "../components/AddTransaction.svelte";
     import AccountsCard from "../components/AccountsCard.svelte";
 	
-	let accounts: Account[] = $state([]);
     let transactions: Transaction[] = $state([]);
-    let activeAccount: number | null = $state(null);
-
-    async function fetchAccounts() {
-        accounts = await invoke("fetch_accounts");
-    }
-
-    $effect(() => {
-        fetchAccounts();
-        invoke<Transaction[]>("get_transactions", {account: activeAccount})
-            .then(val => transactions = val);
-    });
 </script>
 
 <main class="flex h-full">

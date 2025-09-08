@@ -21,8 +21,8 @@ export class AccountStore{
         return this._accountTypes;
     }
 
-    async addAccount(name: string,accountType: number,startingBalance: number){
-        await invoke("create_account",{name,accountType,startingBalance});
+    async addAccount(name: string, accountType: number, startingBalance: number){
+        await invoke("create_account", {name, accountType, startingBalance});
         await this.fetch();
     }
 }

@@ -11,10 +11,10 @@
 
     async function addAccount() {
         if (!accountType || !accountName || !startingBalance){
-            return
+            return;
         }
 
-        accountStore.addAccount(accountName,accountType.id,startingBalance);
+        accountStore.addAccount(accountName, accountType.id, startingBalance);
     }
 
 </script>
