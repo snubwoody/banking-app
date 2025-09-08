@@ -8,4 +8,6 @@ pub enum Error {
     Sqlx(#[from] sqlx::Error),
     #[error(transparent)]
     Io(#[from] io::Error),
+    #[error("Failed to run migration: {0}")]
+    Migrate(#[from] sqlx::migrate::MigrateError),
 }

@@ -5,10 +5,11 @@ export class AccountStore{
     accounts: Account[] = $state([]);
     transactions: Transaction[] = $state([]);
     categories: Category[] = $state([]);
-    private _accountTypes: AccountType[] = [];
+    private _accountTypes: AccountType[] = $state([]);
 
     constructor(){
         this.fetch();
+        console.log(this);
     }
 
     private async fetch() {

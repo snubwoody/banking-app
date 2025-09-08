@@ -2,7 +2,10 @@ use crate::Error;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{SqlitePool, prelude::FromRow};
-use std::str::FromStr;
+use std::{
+    fs::{self, File},
+    str::FromStr,
+};
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
 pub struct Account {
@@ -38,10 +41,17 @@ pub struct AccountService {
 }
 
 impl AccountService {
-    pub async fn new() -> Self {
-        let url = "data.db";
-        let pool = sqlx::SqlitePool::connect(url).await.unwrap();
-        Self { pool }
+    pub async fn new() -> Result<Self, Error> {
+        if !fs::exists("data.db")? {
+            File::create("data.db")?;
+        }
+
+        let url = "sqlite:data.db";
+        let pool = sqlx::SqlitePool::connect(url).await?;
+
+        sqlx::migrate!("./migrations").run(&pool).await?;
+
+        Ok(Self { pool })
     }
 
     pub async fn from_pool(pool: SqlitePool) -> Self {
