@@ -22,19 +22,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
+        id: cache-cargo-bin
         with:
           path: |
             ~/.cargo/bin
           key: ${{runner.os}}-cargo-bin
-      - uses: actions/cache@v4
+      - uses: Swatinem/rust-cache@v2
         with:
-          key: ${{runner.os}}-cargo-${{hashFiles('src-tauri/Cargo.lock')}}
-          restore-keys: |
-            ${{runner.os}}-cargo-
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            src-tauri/target
+          workspaces: src-tauri
       - name: Install system dependencies
         if: ${{runner.os}} == 'Linux'
         run: |
@@ -49,6 +44,8 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev
       - run: cargo install sqlx-cli
+        if: steps.cache-cargo-bin.outputs.cache-hit != 'true'
+        name: Install sqlx cli
       - name: Setup database
         run: |
           cd src-tauri
