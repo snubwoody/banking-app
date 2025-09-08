@@ -9,7 +9,7 @@
         placeholder?: string,
         prefixIcon?: Snippet,
         suffixIcon?: Snippet,
-    }
+    };
 
     const {
         type="text",

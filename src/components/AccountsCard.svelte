@@ -4,9 +4,7 @@
     import Select from "./Select.svelte";
     import TextField from "./TextField.svelte";
 
-    let accountType: {id: number,title: string} | undefined = $state();
-
-    $inspect(accountType);
+    let accountType: {id: number, title: string} | undefined = $state();
 </script>
 
 <section>   
@@ -33,8 +31,8 @@
                 <Select 
                     label="Account type"
                     bind:value={accountType}
-                    options={[{id: 1, title: "Credit"},{id: 2, title: "Savings"}]}
-                    format={(item)=>item.title}
+                    options={[{id: 1, title: "Credit"}, {id: 2, title: "Savings"}]}
+                    format={(item) => item.title}
                 />
                 <TextField label="Starting balance" type="number" name="balance" placeholder="0.00"/>
             </div>

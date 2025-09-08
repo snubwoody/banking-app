@@ -1,6 +1,5 @@
 <script lang="ts" generics="Option">
     import {Select} from "melt/builders";
-    import type { Snippet } from "svelte";
 
     type Props = {
         options: Option[],
@@ -8,7 +7,7 @@
         /** Describes how to format the select item */
         format?: (value: Option) => string,
         value?: Option
-    }
+    };
 
     const select = new Select<Option>();
 
@@ -19,9 +18,9 @@
         value = $bindable()
     }: Props = $props();
 
-    $effect(()=>{
-        value = select.value
-    })
+    $effect(() => {
+        value = select.value;
+    });
 </script>
 
 <div class="select">
@@ -36,7 +35,7 @@
 </div>
 
 <ul {...select.content}>
-    {#each options as option}
+    {#each options as option (option)}
         <li {...select.getOption(option)}>
             {#if option === select.value}
                 <i class="ph ph-check"></i>
