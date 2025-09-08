@@ -5,18 +5,12 @@
     import AddTransaction from "../components/AddTransaction.svelte";
     import AccountsCard from "../components/AccountsCard.svelte";
 	
-    // TODO: make global transaction store
 	let accounts: Account[] = $state([]);
     let transactions: Transaction[] = $state([]);
     let activeAccount: number | null = $state(null);
 
     async function fetchAccounts() {
         accounts = await invoke("fetch_accounts");
-    }
-
-    async function deleteAccount(id: number){
-        await invoke("delete_account", {id});
-        await fetchAccounts();
     }
 
     $effect(() => {
@@ -27,24 +21,6 @@
 </script>
 
 <main class="flex h-full">
-    <aside class="max-w-[250px] flex-1 h-full  border-l border-neutral-300 p-3 space-y-4">
-        <header class="flex items-center justify-between">
-            <p class="text-lg">Accounts</p>
-            <CreateAccount/>
-        </header>
-        <ul class="flex flex-col gap-4">
-            {#each accounts as account (account.id)}
-                <li class="flex items-center justify-between">
-                    <button onclick={() => { activeAccount = account.id; }}>
-                        {account.name}
-                    </button>
-                    <button aria-label="Delete account" onclick={() => deleteAccount(account.id)}>
-                        <i class="ph ph-x-circle"></i>
-                    </button>
-                </li>
-            {/each}
-        </ul>
-    </aside>
     <section class="flex-1 p-5 space-y-3">
         <section class="rounded-sm shadow-sm space-y-1 p-2.5 bg-white">
             <p>Total Net Worth</p>
