@@ -38,7 +38,7 @@
             Add account
         {/snippet}
         {#snippet body()}
-            <div>
+            <div class="space-y-2.5">
                 <TextField bind:value={accountName} label="Name" name="accountName" placeholder="Account name"/>
                 <Select 
                     label="Account type"

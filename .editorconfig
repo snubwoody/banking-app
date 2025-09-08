@@ -8,5 +8,5 @@ end_of_line = lf
 [*.{rs,svelte}]
 indent_size = 4
 
-[*.{yml,yaml}]
+[*.{yml,yaml,json}]
 indent_size = 2

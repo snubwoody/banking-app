@@ -1,9 +1,7 @@
 <script lang="ts">
-    import type { Transaction } from "../lib/db";
-    import AddTransaction from "../components/AddTransaction.svelte";
     import AccountsCard from "../components/AccountsCard.svelte";
+    import TransactionsCard from "../components/TransactionsCard.svelte";
 	
-    let transactions: Transaction[] = $state([]);
 </script>
 
 <main class="flex h-full">
@@ -13,39 +11,13 @@
             <h5>$ 156,242.24</h5>
         </section>
         <AccountsCard/>
-        <section class="rounded-sm shadow-sm space-y-1 p-2.5 bg-white">
-            <div class="flex items-center justify-between">
-                <p class="text-lg">Transactions</p>
-                <AddTransaction/>
-            </div>
-            <ul class="transaction-grid">
-                <!--Table heading-->
-                <li>Category</li>
-                <li>Date</li>
-                <li>Account</li>
-                <li>Amount</li>
-                <!--Table rows-->
-                {#each transactions as transaction (transaction.id)}
-                    <li>{transaction.category.title}</li>
-                    <!--TODO: format date-->
-                    <li>{transaction.date}</li>
-                    <li>{transaction.account.name}</li>
-                    <li>$ {transaction.amount}</li>
-                {/each}
-            </ul>
-        </section>
+        <TransactionsCard/>
     </section>
 </main>
 
 <style>
     main{
         background-color: #F5F6FA;
-    }
-
-    .transaction-grid{
-        display: grid;
-        grid-template-columns: repeat(4,1fr);
-        gap: 20px;
     }
 </style>
 

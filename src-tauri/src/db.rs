@@ -189,6 +189,45 @@ impl AccountService {
 
         Ok(transactions)
     }
+
+    /// Get all the transactions.
+    pub async fn get_all_transactions(&self) -> Result<Vec<Transaction>, Error> {
+        let rows = sqlx::query_file!("queries/get_all_transactions.sql")
+            .fetch_all(&self.pool)
+            .await?;
+
+        let transactions: Vec<Transaction> = rows
+            .into_iter()
+            .map(|row| {
+                let category = Category {
+                    id: row.category_id,
+                    title: row.category_title,
+                };
+
+                let account = Account {
+                    id: row.account_id,
+                    starting_balance: row.account_starting_balance,
+                    name: row.account_name,
+                    account_type: AccountType {
+                        id: row.account_type_id,
+                        title: row.account_type,
+                    },
+                };
+
+                // FIXME
+                let date = NaiveDate::from_str(&row.date).unwrap();
+                Transaction {
+                    id: row.id,
+                    date,
+                    amount: row.amount,
+                    account,
+                    category,
+                }
+            })
+            .collect();
+
+        Ok(transactions)
+    }
 }
 
 #[tauri::command]
@@ -255,6 +294,14 @@ pub async fn get_transactions(
     account: i64,
 ) -> Result<Vec<Transaction>, ()> {
     let transactions = accounts.get_transactions(account).await.unwrap();
+    Ok(transactions)
+}
+
+#[tauri::command]
+pub async fn get_all_transactions(
+    accounts: tauri::State<'_, AccountService>,
+) -> Result<Vec<Transaction>, ()> {
+    let transactions = accounts.get_all_transactions().await.unwrap();
     Ok(transactions)
 }
 
