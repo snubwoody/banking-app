@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { Transaction } from "../lib/db";
     import AccountsCard from "../components/AccountsCard.svelte";
     import TransactionsCard from "../components/TransactionsCard.svelte";
 	
