@@ -10,7 +10,7 @@ on:
     branches: ["main"]
 jobs:
   format:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: Check formatting
@@ -22,6 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
+        name: Cache sqlx cli   
         id: cache-cargo-bin
         with:
           path: |
@@ -30,19 +31,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-      - name: Install system dependencies
-        if: ${{runner.os}} == 'Linux'
-        run: |
-          sudo apt update
-          sudo apt install libwebkit2gtk-4.1-dev \
-            build-essential \
-            curl \
-            wget \
-            file \
-            libxdo-dev \
-            libssl-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev
       - run: cargo install sqlx-cli
         if: steps.cache-cargo-bin.outputs.cache-hit != 'true'
         name: Install sqlx cli
