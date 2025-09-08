@@ -1,10 +1,22 @@
 <script lang="ts">
     import { accountStore } from "$lib/account.svelte";
+    import type { AccountType } from "$lib/db";
     import Dialog from "./Dialog.svelte";
     import Select from "./Select.svelte";
     import TextField from "./TextField.svelte";
 
-    let accountType: {id: number, title: string} | undefined = $state();
+    let accountType: AccountType | undefined = $state();
+    let accountName: string | undefined = $state();
+    let startingBalance: number | undefined = $state();
+
+    async function addAccount() {
+        if (!accountType || !accountName || !startingBalance){
+            return
+        }
+
+        accountStore.addAccount(accountName,accountType.id,startingBalance);
+    }
+
 </script>
 
 <section>   
@@ -16,7 +28,7 @@
                     <p>{account.name}</p>
                     <p class="text-sm">{account.account_type.title}</p>
                 </div>
-                <!--Replace with balance-->
+                <!--TODO: Replace with balance-->
                 <h6>$ {account.starting_balance}</h6>
             </li>
         {/each}
@@ -27,18 +39,18 @@
         {/snippet}
         {#snippet body()}
             <div>
-                <TextField label="Name" name="accountName" placeholder="Account name"/>
+                <TextField bind:value={accountName} label="Name" name="accountName" placeholder="Account name"/>
                 <Select 
                     label="Account type"
                     bind:value={accountType}
-                    options={[{id: 1, title: "Credit"}, {id: 2, title: "Savings"}]}
+                    options={accountStore.accountTypes}
                     format={(item) => item.title}
                 />
-                <TextField label="Starting balance" type="number" name="balance" placeholder="0.00"/>
+                <TextField bind:value={startingBalance} label="Starting balance" type="number" name="balance" placeholder="0.00"/>
             </div>
         {/snippet}
         {#snippet actions()}
-            <button class="btn btn-primary w-full">
+            <button onclick={addAccount} class="btn btn-primary w-full">
                 <i class="ph ph-plus"></i>
                 Add account
             </button>
