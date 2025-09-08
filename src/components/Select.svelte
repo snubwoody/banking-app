@@ -6,7 +6,8 @@
         label: string,
         /** Describes how to format the select item */
         format?: (value: Option) => string,
-        value?: Option
+        value?: Option,
+        placeholder?: string
     };
 
     const select = new Select<Option>();
@@ -14,6 +15,7 @@
     let { 
         options, 
         label, 
+        placeholder = "Select an item",
         format,
         value = $bindable()
     }: Props = $props();
@@ -27,7 +29,7 @@
     <label {...select.label}>{label}</label>
     <button {...select.trigger}>
         {#if !select.value}
-            Select an item
+            {placeholder}
         {:else}
             {format ? format(select.value) : select.value}
         {/if}
