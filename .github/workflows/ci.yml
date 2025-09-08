@@ -25,11 +25,12 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
-            ./src-tauri/target
+            src-tauri/target
             ~/.cargo/git
             ~/.cargo/registry
-          key: ${{runner.os}}-cargo-${{hashFiles('**/Cargo.lock')}}
-          restore-keys: ${{runner.os}}-cargo-
+          key: ${{runner.os}}-cargo-${{hashFiles('src-tauri/Cargo.lock')}}
+          restore-keys: |
+            ${{runner.os}}-cargo-
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -78,11 +79,12 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
-            ./src-tauri/target
+            src-tauri/target
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{runner.os}}-cargo-${{hashFiles('**/Cargo.lock')}}
-          restore-keys: ${{runner.os}}-cargo-
+          key: ${{runner.os}}-cargo-${{hashFiles('src-tauri/Cargo.lock')}}
+          restore-keys: |
+            ${{runner.os}}-cargo-
       - run: cargo install sqlx-cli
       - uses: taiki-e/install-action@cargo-nextest
       - name: Setup database
