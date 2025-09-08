@@ -3,6 +3,10 @@
     import Dialog from "./Dialog.svelte";
     import Select from "./Select.svelte";
     import TextField from "./TextField.svelte";
+
+    let accountType: {id: number,title: string} | undefined = $state();
+
+    $inspect(accountType);
 </script>
 
 <section>   
@@ -28,6 +32,7 @@
                 <TextField label="Name" name="accountName" placeholder="Account name"/>
                 <Select 
                     label="Account type"
+                    bind:value={accountType}
                     options={[{id: 1, title: "Credit"},{id: 2, title: "Savings"}]}
                     format={(item)=>item.title}
                 />

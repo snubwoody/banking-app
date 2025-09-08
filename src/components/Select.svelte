@@ -7,15 +7,21 @@
         label: string,
         /** Describes how to format the select item */
         format?: (value: Option) => string,
+        value?: Option
     }
 
     const select = new Select<Option>();
 
-    const { 
+    let { 
         options, 
         label, 
         format,
+        value = $bindable()
     }: Props = $props();
+
+    $effect(()=>{
+        value = select.value
+    })
 </script>
 
 <div class="select">
