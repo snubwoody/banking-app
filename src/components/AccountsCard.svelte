@@ -1,5 +1,10 @@
 <script lang="ts">
     import { accountStore } from "$lib/account.svelte";
+    import Dialog from "./Dialog.svelte";
+    import Select from "./Select.svelte";
+    import TextField from "./TextField.svelte";
+
+    let accountType: {id: number, title: string} | undefined = $state();
 </script>
 
 <section>   
@@ -16,7 +21,29 @@
             </li>
         {/each}
     </ul>
-    <button>Add account</button>
+    <Dialog title="Add account">
+        {#snippet trigger()}
+            Add account
+        {/snippet}
+        {#snippet body()}
+            <div>
+                <TextField label="Name" name="accountName" placeholder="Account name"/>
+                <Select 
+                    label="Account type"
+                    bind:value={accountType}
+                    options={[{id: 1, title: "Credit"}, {id: 2, title: "Savings"}]}
+                    format={(item) => item.title}
+                />
+                <TextField label="Starting balance" type="number" name="balance" placeholder="0.00"/>
+            </div>
+        {/snippet}
+        {#snippet actions()}
+            <button class="btn btn-primary w-full">
+                <i class="ph ph-plus"></i>
+                Add account
+            </button>
+        {/snippet}
+    </Dialog>
 </section>
 
 <style>

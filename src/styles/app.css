@@ -2,6 +2,7 @@
 @import "./colors.css";
 @import "./text.css";
 @import "./shadow.css";
+@import "./button.css";
 
 @theme{
     --spacing: 8px;
