@@ -18,19 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
+        id: cache-cargo-bin
+        name: Cache sqlx cli
         with:
           path: |
             ~/.cargo/bin
           key: ${{runner.os}}-cargo-bin
-      - uses: actions/cache@v4
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            src-tauri/target
-            ~/.cargo/git
-            ~/.cargo/registry
-          key: ${{runner.os}}-cargo-${{hashFiles('src-tauri/Cargo.lock')}}
-          restore-keys: |
-            ${{runner.os}}-cargo-
+          workspaces: src-tauri
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -42,6 +38,8 @@ jobs:
           node-version: 24
           cache: 'pnpm'
       - run: cargo install sqlx-cli
+        name: Install sqlx-cli
+        if: steps.cache-cargo-bin.outputs.cache-hit != 'true'
       - run: pnpm install
       - name: Install system dependencies
         if: runner.os == 'Linux'
