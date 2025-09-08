@@ -5,7 +5,7 @@ pub use error::Error;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
-    let account_service = AccountService::new().await;
+    let account_service = AccountService::new().await.unwrap();
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(account_service)
