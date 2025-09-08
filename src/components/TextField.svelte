@@ -9,10 +9,12 @@
         placeholder?: string,
         prefixIcon?: Snippet,
         suffixIcon?: Snippet,
+        value?: string | number
     };
 
-    const {
+    let {
         type="text",
+        value = $bindable(),
         name, 
         prefixIcon,
         suffixIcon,
@@ -25,7 +27,7 @@
     <p>{label}</p>
     <div>
         {@render prefixIcon?.()}
-        <input {type} {name} {placeholder}>
+        <input bind:value {type} {name} {placeholder}>
         {@render suffixIcon?.()}
     </div>
 </label>
