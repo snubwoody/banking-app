@@ -249,6 +249,15 @@ pub async fn get_categories(
 }
 
 #[tauri::command]
+pub async fn add_category(
+    accounts: tauri::State<'_, AccountService>,
+    title: &str,
+) -> Result<(), ()> {
+    accounts.add_category(title).await.unwrap();
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn create_account(
     accounts: tauri::State<'_, AccountService>,
     name: String,

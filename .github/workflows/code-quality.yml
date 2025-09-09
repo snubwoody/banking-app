@@ -28,9 +28,16 @@ jobs:
           path: |
             ~/.cargo/bin
           key: ${{runner.os}}-cargo-bin
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/cache@v4
+        name: Cache rust
         with:
-          workspaces: src-tauri
+          path: |
+            ~/.cargo
+            src-tauri/target
+          key: rust-${{runner.os}}-${{hashFiles('src-tauri/Cargo.lock')}}-${{hashFiles('src-tauri/Cargo.toml')}}
+          restore-keys: |
+            rust-${{runner.os}}-${{hashFiles('src-tauri/Cargo.lock')}}-
+            rust-${{runner.os}}-
       - run: cargo install sqlx-cli
         if: steps.cache-cargo-bin.outputs.cache-hit != 'true'
         name: Install sqlx cli
