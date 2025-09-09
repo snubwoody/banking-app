@@ -2,7 +2,6 @@ use banking_app_lib::{AccountService, Error};
 use chrono::NaiveDate;
 use sqlx::SqlitePool;
 
-
 #[sqlx::test]
 async fn create_account(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
@@ -86,7 +85,9 @@ async fn add_transaction(pool: SqlitePool) -> Result<(), Error> {
     let category = &accounts.get_categories().await?[0];
     let date = NaiveDate::parse_from_str("2025-10-04", "%Y-%m-%d").unwrap();
 
-    let transaction_id = accounts.add_transaction(100, &id, &category.id, date).await?;
+    let transaction_id = accounts
+        .add_transaction(100, &id, &category.id, date)
+        .await?;
     let transaction = sqlx::query!("SELECT * FROM transactions WHERE id=$1", transaction_id)
         .fetch_one(&pool)
         .await?;
@@ -105,8 +106,12 @@ async fn get_transactions(pool: SqlitePool) -> Result<(), Error> {
     let category = &accounts.get_categories().await?[0];
     let date = NaiveDate::parse_from_str("2025-10-04", "%Y-%m-%d").unwrap();
 
-    accounts.add_transaction(100, id, &category.id, date).await?;
-    accounts.add_transaction(500, id, &category.id, date).await?;
+    accounts
+        .add_transaction(100, id, &category.id, date)
+        .await?;
+    accounts
+        .add_transaction(500, id, &category.id, date)
+        .await?;
     let transactions = accounts.get_transactions(id).await?;
     assert_eq!(transactions.len(), 2);
     Ok(())

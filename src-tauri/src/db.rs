@@ -272,7 +272,10 @@ pub async fn fetch_accounts(
 }
 
 #[tauri::command]
-pub async fn delete_account(accounts: tauri::State<'_, AccountService>, id: &str) -> Result<(), ()> {
+pub async fn delete_account(
+    accounts: tauri::State<'_, AccountService>,
+    id: &str,
+) -> Result<(), ()> {
     accounts.delete_account(id).await.unwrap();
     tracing::info!("Deleted account: {id}");
     Ok(())
