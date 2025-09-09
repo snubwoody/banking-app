@@ -1,11 +1,11 @@
 <script>
     import Categories from "./Categories.svelte";
 
-    let categoriesOpen = $state(false)
+    let categoriesOpen = $state(false);
 </script>
 
 <section class="p-3 bg-white">
-    <button aria-label="Toggle categories" onclick={()=>categoriesOpen = !categoriesOpen}>
+    <button aria-label="Toggle categories" onclick={() => categoriesOpen = !categoriesOpen}>
         <i class="ph ph-folder-simple text-[32px]"></i>
     </button>
 </section>
