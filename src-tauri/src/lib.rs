@@ -16,6 +16,7 @@ pub async fn run() {
             db::get_transactions,
             db::add_transaction,
             db::get_categories,
+            db::add_category,
             db::get_all_transactions,
             db::get_account_types,
         ])

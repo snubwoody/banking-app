@@ -1,6 +1,15 @@
 <script lang="ts">
     import { accountStore } from "$lib/account.svelte";
+
     let addCategory = $state(false);
+    let title: string | undefined = $state()
+    async function createCategory() {
+        if (title){
+            accountStore.addCategory(title)   
+            addCategory = false;
+            title = undefined
+        }
+    }
 </script>
 
 <div class="flex items-center justify-between">
@@ -11,11 +20,11 @@
 </div>
 {#if addCategory}
     <div class="flex items-center">
-        <input placeholder="Category" type="text" class="w-full border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 rounded-sm">
+        <input bind:value={title} placeholder="Category" type="text" class="w-full border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 rounded-sm">
         <button aria-label="Cancel" class="ml-2 mr-1" onclick={()=>addCategory = false}>
             <i class="ph ph-x"></i>
         </button>
-        <button aria-label="Confirm">
+        <button aria-label="Confirm" onclick={createCategory}>
             <i class="ph ph-check"></i>
         </button>
     </div>

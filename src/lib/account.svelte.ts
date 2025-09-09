@@ -32,6 +32,11 @@ export class AccountStore{
         await invoke("add_transaction", {amount, account: account.id, category: category.id, date});
         await this.fetch();
     }
+
+    async addCategory(title: string){
+        await invoke("add_category", {title});
+        await this.fetch();
+    }
 }
 
 /**
