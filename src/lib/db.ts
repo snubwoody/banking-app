@@ -1,13 +1,13 @@
 
 export type Account = {
-    id: number,
+    id: string,
     name: string,
     starting_balance: number,
     account_type: AccountType
 };
 
 export type Transaction = {
-    id: number,
+    id: string,
     amount: number,
     category: Category,
     account: Account,
@@ -15,11 +15,11 @@ export type Transaction = {
 };
 
 export type Category = {
-    id: number,
+    id: string,
     title: string
 };
 
 export type AccountType = {
-    id: number,
+    id: string,
     title: string
 };

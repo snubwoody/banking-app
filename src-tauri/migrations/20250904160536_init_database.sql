@@ -1,6 +1,5 @@
--- Add migration script here
 CREATE TABLE account_type(
-    id INTEGER PRIMARY KEY NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL DEFAULT (hex(randomblob(8))),
     title TEXT UNIQUE NOT NULL
 );
 
@@ -10,14 +9,15 @@ VALUES
     ('Savings');
 
 CREATE TABLE accounts(
-    id INTEGER PRIMARY KEY NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL DEFAULT (hex(randomBlob(8))),
     name TEXT NOT NULL,
     starting_balance INTEGER NOT NULL DEFAULT 0,
-    account_type INTEGER NOT NULL REFERENCES account_type(id) DEFAULT 1
+    account_type TEXT NOT NULL,
+    Foreign Key (account_type) REFERENCES account_type(id)
 );
 
 CREATE TABLE categories(
-    id INTEGER PRIMARY KEY NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL DEFAULT (hex(randomBlob(8))),
     title TEXT NOT NULL UNIQUE
 );
 
@@ -27,6 +27,8 @@ VALUES
     ('Phone'),
     ('Electricity'),
     ('Hospital'),
+    ('Rent'),
+    ('Entertainment'),
     ('Taxes'),
     ('Insurance'),
     ('Correction'),
@@ -34,9 +36,9 @@ VALUES
 
 
 CREATE TABLE transactions(
-    id INTEGER PRIMARY KEY NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL DEFAULT (hex(randomBlob(8))),
     amount INTEGER NOT NULL,
-    account INTEGER NOT NULL REFERENCES accounts(id),
+    account TEXT NOT NULL REFERENCES accounts(id),
     date TEXT NOT NULL,
-    category INTEGER NOT NULL REFERENCES categories(id)
+    category TEXT NOT NULL REFERENCES categories(id)
 );
