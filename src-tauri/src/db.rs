@@ -9,7 +9,7 @@ use std::{
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
 pub struct Account {
-    pub id: i64,
+    pub id: String,
     pub name: String,
     pub account_type: AccountType,
     pub starting_balance: i64,
@@ -17,7 +17,7 @@ pub struct Account {
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
 pub struct Transaction {
-    pub id: i64,
+    pub id: String,
     pub account: Account,
     pub amount: i64,
     pub category: Category,
@@ -26,13 +26,13 @@ pub struct Transaction {
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
 pub struct Category {
-    pub id: i64,
+    pub id: String,
     pub title: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, FromRow)]
 pub struct AccountType {
-    pub id: i64,
+    pub id: String,
     pub title: String,
 }
 
@@ -61,9 +61,9 @@ impl AccountService {
     pub async fn create_account(
         &self,
         name: &str,
-        account_type: i64,
+        account_type: &str,
         starting_balance: i64,
-    ) -> Result<i64, Error> {
+    ) -> Result<String, Error> {
         let row = sqlx::query_file!(
             "queries/create_account.sql",
             name,
@@ -107,7 +107,7 @@ impl AccountService {
     }
 
     /// Delete an account.
-    pub async fn delete_account(&self, id: i64) -> Result<(), crate::Error> {
+    pub async fn delete_account(&self, id: &str) -> Result<(), crate::Error> {
         sqlx::query("DELETE FROM accounts WHERE id = $1")
             .bind(id)
             .execute(&self.pool)
@@ -136,10 +136,10 @@ impl AccountService {
     pub async fn add_transaction(
         &self,
         amount: i32,
-        account: i64,
-        category: i64,
+        account: &str,
+        category: &str,
         date: NaiveDate,
-    ) -> Result<i64, Error> {
+    ) -> Result<String, Error> {
         let row = sqlx::query_file!(
             "queries/add_transaction.sql",
             amount,
@@ -154,7 +154,7 @@ impl AccountService {
     }
 
     /// Delete a transactions.
-    pub async fn delete_transaction(&self, id: i64) {
+    pub async fn delete_transaction(&self, id: &str) {
         sqlx::query!("DELETE FROM transactions WHERE id = $1", id)
             .execute(&self.pool)
             .await
@@ -162,7 +162,7 @@ impl AccountService {
     }
 
     /// Get all transactions belonging to a particular account.
-    pub async fn get_transactions(&self, account_id: i64) -> Result<Vec<Transaction>, Error> {
+    pub async fn get_transactions(&self, account_id: &str) -> Result<Vec<Transaction>, Error> {
         let rows = sqlx::query_file!("queries/get_transactions.sql", account_id)
             .fetch_all(&self.pool)
             .await?;
@@ -252,7 +252,7 @@ pub async fn get_categories(
 pub async fn create_account(
     accounts: tauri::State<'_, AccountService>,
     name: String,
-    account_type: i64,
+    account_type: &str,
     starting_balance: i64,
 ) -> Result<(), ()> {
     accounts
@@ -272,7 +272,7 @@ pub async fn fetch_accounts(
 }
 
 #[tauri::command]
-pub async fn delete_account(accounts: tauri::State<'_, AccountService>, id: i64) -> Result<(), ()> {
+pub async fn delete_account(accounts: tauri::State<'_, AccountService>, id: &str) -> Result<(), ()> {
     accounts.delete_account(id).await.unwrap();
     tracing::info!("Deleted account: {id}");
     Ok(())
@@ -282,8 +282,8 @@ pub async fn delete_account(accounts: tauri::State<'_, AccountService>, id: i64)
 pub async fn add_transaction(
     accounts: tauri::State<'_, AccountService>,
     amount: i32,
-    account: i64,
-    category: i64,
+    account: &str,
+    category: &str,
     date: NaiveDate,
 ) -> Result<(), ()> {
     accounts
@@ -301,7 +301,7 @@ pub async fn add_transaction(
 #[tauri::command]
 pub async fn get_transactions(
     accounts: tauri::State<'_, AccountService>,
-    account: i64,
+    account: &str,
 ) -> Result<Vec<Transaction>, ()> {
     let transactions = accounts.get_transactions(account).await.unwrap();
     Ok(transactions)
