@@ -1,11 +1,10 @@
 pub mod db;
-mod state;
-pub mod transactions;
 pub mod error;
+pub mod service;
+mod state;
 pub use db::AccountService;
-pub use error::{Error,Result};
+pub use error::{Error, Result};
 pub use state::AppState;
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {

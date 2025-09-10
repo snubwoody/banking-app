@@ -1,5 +1,5 @@
 use crate::Error;
-use crate::transactions::{Transaction,Category};
+use crate::service::{Category, Transaction};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{SqlitePool, prelude::FromRow};

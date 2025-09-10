@@ -1,13 +1,13 @@
-use std::fs::{self,File};
 use sqlx::SqlitePool;
+use std::fs::{self, File};
 
 /// Global app state.
 #[derive(Clone)]
-pub struct AppState{
-    pool: sqlx::SqlitePool
+pub struct AppState {
+    pool: sqlx::SqlitePool,
 }
 
-impl AppState{
+impl AppState {
     /// Initialise the [`AppState`]. This will load the data from a `data.db` file
     /// or create one if it doens't exist.
     pub async fn init() -> crate::Result<Self> {
@@ -24,14 +24,13 @@ impl AppState{
         Ok(Self { pool })
     }
 
-
     /// Create an [`AppState`] from an existing pool, useful for testing.
-    pub async fn from_pool(pool: SqlitePool) -> Self {
+    pub fn from_pool(pool: SqlitePool) -> Self {
         Self { pool }
     }
 
     /// Get a reference to the connection pool.
-    pub fn pool(&self) -> &SqlitePool{
+    pub fn pool(&self) -> &SqlitePool {
         &self.pool
     }
 }
