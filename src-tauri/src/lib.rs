@@ -1,4 +1,5 @@
 pub mod db;
+pub mod transactions;
 pub mod error;
 pub use db::AccountService;
 pub use error::Error;

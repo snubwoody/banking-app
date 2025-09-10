@@ -6,12 +6,12 @@ use sqlx::SqlitePool;
 async fn create_account(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
     let account_type = &accounts.get_account_types().await?[0].id;
-    let id = accounts.create_account("Name", account_type, 240).await?;
+    let id = accounts.create_account("Name", account_type, 240.0).await?;
     let row = sqlx::query!("SELECT * FROM accounts WHERE id=$1", id)
         .fetch_one(&pool)
         .await?;
 
-    assert_eq!(row.starting_balance, 240);
+    assert_eq!(row.starting_balance, 240.0);
     assert_eq!(&row.name, "Name");
     Ok(())
 }
@@ -20,7 +20,7 @@ async fn create_account(pool: SqlitePool) -> Result<(), Error> {
 async fn delete_account(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
     let account_type = &accounts.get_account_types().await?[0].id;
-    let id = accounts.create_account("Name", account_type, 200).await?;
+    let id = accounts.create_account("Name", account_type, 200.0).await?;
     let rows = sqlx::query!("SELECT * FROM accounts")
         .fetch_all(&pool)
         .await?;
@@ -37,9 +37,9 @@ async fn delete_account(pool: SqlitePool) -> Result<(), Error> {
 async fn get_accounts(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
     let account_type = &accounts.get_account_types().await?[0].id;
-    accounts.create_account("Name", account_type, 0).await?;
-    accounts.create_account("Name", account_type, 0).await?;
-    accounts.create_account("Name", account_type, 0).await?;
+    accounts.create_account("Name", account_type, 0.0).await?;
+    accounts.create_account("Name", account_type, 0.0).await?;
+    accounts.create_account("Name", account_type, 0.0).await?;
     let all_accounts = accounts.get_accounts().await?;
     assert_eq!(all_accounts.len(), 3);
     Ok(())
@@ -81,7 +81,7 @@ async fn get_categories(pool: SqlitePool) -> Result<(), Error> {
 async fn add_transaction(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
     let account_type = &accounts.get_account_types().await?[0].id;
-    let id = accounts.create_account("", account_type, 2).await?;
+    let id = accounts.create_account("", account_type, 2.0).await?;
     let category = &accounts.get_categories().await?[0];
     let date = NaiveDate::parse_from_str("2025-10-04", "%Y-%m-%d").unwrap();
 
@@ -92,7 +92,7 @@ async fn add_transaction(pool: SqlitePool) -> Result<(), Error> {
         .fetch_one(&pool)
         .await?;
 
-    assert_eq!(transaction.amount, 100);
+    assert_eq!(transaction.amount, 100.0);
     assert_eq!(transaction.category, category.id);
     assert_eq!(transaction.account, id);
     Ok(())
@@ -102,7 +102,7 @@ async fn add_transaction(pool: SqlitePool) -> Result<(), Error> {
 async fn get_transactions(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
     let account_type = &accounts.get_account_types().await?[0].id;
-    let id = &accounts.create_account("", account_type, 20).await?;
+    let id = &accounts.create_account("", account_type, 20.0).await?;
     let category = &accounts.get_categories().await?[0];
     let date = NaiveDate::parse_from_str("2025-10-04", "%Y-%m-%d").unwrap();
 
