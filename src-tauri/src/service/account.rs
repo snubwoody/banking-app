@@ -1,0 +1,228 @@
+use crate::Error;
+use crate::service::{Category, Transaction};
+use chrono::NaiveDate;
+use serde::{Deserialize, Serialize};
+use sqlx::{SqlitePool, prelude::FromRow};
+use std::{
+    fs::{self, File},
+    str::FromStr,
+};
+
+#[derive(Debug, FromRow, Serialize, Deserialize, Default)]
+pub struct Account {
+    pub id: String,
+    pub name: String,
+    pub account_type: AccountType,
+    pub starting_balance: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, FromRow)]
+pub struct AccountType {
+    pub id: String,
+    pub title: String,
+}
+
+pub struct AccountService {
+    pool: SqlitePool,
+}
+
+impl AccountService {
+    pub async fn new() -> Result<Self, Error> {
+        if !fs::exists("data.db")? {
+            File::create("data.db")?;
+        }
+
+        let url = "sqlite:data.db";
+        let pool = sqlx::SqlitePool::connect(url).await?;
+
+        sqlx::migrate!("./migrations").run(&pool).await?;
+
+        Ok(Self { pool })
+    }
+
+    pub async fn from_pool(pool: SqlitePool) -> Self {
+        Self { pool }
+    }
+
+    pub async fn create_account(
+        &self,
+        name: &str,
+        account_type: &str,
+        starting_balance: f64,
+    ) -> Result<String, Error> {
+        let row = sqlx::query_file!(
+            "queries/create_account.sql",
+            name,
+            account_type,
+            starting_balance
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(row.id)
+    }
+
+    pub async fn get_account_types(&self) -> Result<Vec<AccountType>, Error> {
+        let account_types = sqlx::query_file_as!(AccountType, "queries/get_account_types.sql")
+            .fetch_all(&self.pool)
+            .await?;
+
+        Ok(account_types)
+    }
+
+    /// Get all the accounts.
+    pub async fn get_accounts(&self) -> Result<Vec<Account>, Error> {
+        // FIXME
+        let rows = sqlx::query_file!("queries/get_accounts.sql")
+            .fetch_all(&self.pool)
+            .await?;
+
+        let accounts: Vec<Account> = rows
+            .into_iter()
+            .map(|row| Account {
+                id: row.id,
+                name: row.name,
+                starting_balance: row.starting_balance,
+                account_type: AccountType {
+                    id: row.account_type_id,
+                    title: row.account_type,
+                },
+            })
+            .collect();
+        Ok(accounts)
+    }
+
+    /// Delete an account.
+    pub async fn delete_account(&self, id: &str) -> Result<(), crate::Error> {
+        sqlx::query("DELETE FROM accounts WHERE id = $1")
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn add_category(&self, title: &str) -> Result<Category, Error> {
+        let category = sqlx::query_file_as!(Category, "queries/add_category.sql", title)
+            .fetch_one(&self.pool)
+            .await?;
+
+        Ok(category)
+    }
+
+    pub async fn get_categories(&self) -> Result<Vec<Category>, Error> {
+        let categories = sqlx::query_file_as!(Category, "queries/get_categories.sql")
+            .fetch_all(&self.pool)
+            .await?;
+
+        Ok(categories)
+    }
+
+    /// Create a new transaction.
+    pub async fn add_transaction(
+        &self,
+        amount: i32,
+        account: &str,
+        category: &str,
+        date: NaiveDate,
+    ) -> Result<String, Error> {
+        let row = sqlx::query_file!(
+            "queries/add_transaction.sql",
+            amount,
+            account,
+            category,
+            date
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(row.id)
+    }
+
+    /// Delete a transactions.
+    pub async fn delete_transaction(&self, id: &str) {
+        sqlx::query!("DELETE FROM transactions WHERE id = $1", id)
+            .execute(&self.pool)
+            .await
+            .unwrap();
+    }
+
+    /// Get all transactions belonging to a particular account.
+    pub async fn get_transactions(&self, account_id: &str) -> Result<Vec<Transaction>, Error> {
+        let rows = sqlx::query_file!("queries/get_transactions.sql", account_id)
+            .fetch_all(&self.pool)
+            .await?;
+
+        let transactions: Vec<Transaction> = rows
+            .into_iter()
+            .map(|row| {
+                let category = Category {
+                    id: row.category_id,
+                    title: row.category_title,
+                };
+
+                let account = Account {
+                    id: row.account_id,
+                    starting_balance: row.account_starting_balance,
+                    name: row.account_name,
+                    account_type: AccountType {
+                        id: row.account_type_id,
+                        title: row.account_type,
+                    },
+                };
+
+                // FIXME
+                let date = NaiveDate::from_str(&row.date).unwrap();
+                Transaction {
+                    id: row.id,
+                    date,
+                    amount: row.amount,
+                    account,
+                    category,
+                }
+            })
+            .collect();
+
+        Ok(transactions)
+    }
+
+    /// Get all the transactions.
+    pub async fn get_all_transactions(&self) -> Result<Vec<Transaction>, Error> {
+        let rows = sqlx::query_file!("queries/get_all_transactions.sql")
+            .fetch_all(&self.pool)
+            .await?;
+
+        let transactions: Vec<Transaction> = rows
+            .into_iter()
+            .map(|row| {
+                let category = Category {
+                    id: row.category_id,
+                    title: row.category_title,
+                };
+
+                let account = Account {
+                    id: row.account_id,
+                    starting_balance: row.account_starting_balance,
+                    name: row.account_name,
+                    account_type: AccountType {
+                        id: row.account_type_id,
+                        title: row.account_type,
+                    },
+                };
+
+                // FIXME
+                let date = NaiveDate::from_str(&row.date).unwrap();
+                Transaction {
+                    id: row.id,
+                    date,
+                    amount: row.amount,
+                    account,
+                    category,
+                }
+            })
+            .collect();
+
+        Ok(transactions)
+    }
+}
+

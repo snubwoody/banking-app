@@ -1,4 +1,4 @@
-use crate::{db::{Account, AccountType}, AppState};
+use crate::{service::{Account, AccountType}, AppState};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -61,13 +61,14 @@ impl TransactionService {
         Ok(transaction)
     }
 
+    /// Add an expense to the database
     pub async fn add_expense(
         &self,
         amount: f64,
         account_id: &str,
         category_id: &str,
         date: NaiveDate,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<String> {
         let pool = self.state.pool();
         let amount = - amount;
         let row = sqlx::query_file!(
@@ -80,7 +81,28 @@ impl TransactionService {
         .fetch_one(pool)
         .await?;
 
-        dbg!(row);
-        Ok(())
+        Ok(row.id)
+    }
+
+    /// Add an income to the database
+    pub async fn add_income(
+        &self,
+        amount: f64,
+        account_id: &str,
+        category_id: &str,
+        date: NaiveDate,
+    ) -> crate::Result<String> {
+        let pool = self.state.pool();
+        let row = sqlx::query_file!(
+            "queries/add_new_transaction.sql",
+            amount,
+            account_id,
+            category_id,
+            date
+        )
+        .fetch_one(pool)
+        .await?;
+
+        Ok(row.id)
     }
 }
