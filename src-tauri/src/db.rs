@@ -1,4 +1,5 @@
 use crate::Error;
+use crate::transactions::{Transaction,Category};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{SqlitePool, prelude::FromRow};
@@ -12,22 +13,7 @@ pub struct Account {
     pub id: String,
     pub name: String,
     pub account_type: AccountType,
-    pub starting_balance: i64,
-}
-
-#[derive(Debug, FromRow, Serialize, Deserialize, Default)]
-pub struct Transaction {
-    pub id: String,
-    pub account: Account,
-    pub amount: i64,
-    pub category: Category,
-    pub date: NaiveDate,
-}
-
-#[derive(Debug, FromRow, Serialize, Deserialize, Default)]
-pub struct Category {
-    pub id: String,
-    pub title: String,
+    pub starting_balance: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, FromRow)]
@@ -62,7 +48,7 @@ impl AccountService {
         &self,
         name: &str,
         account_type: &str,
-        starting_balance: i64,
+        starting_balance: f64,
     ) -> Result<String, Error> {
         let row = sqlx::query_file!(
             "queries/create_account.sql",
@@ -191,6 +177,7 @@ impl AccountService {
                     id: row.id,
                     date,
                     amount: row.amount,
+                    to_account: None,
                     account,
                     category,
                 }
@@ -230,6 +217,7 @@ impl AccountService {
                     id: row.id,
                     date,
                     amount: row.amount,
+                    to_account: None,
                     account,
                     category,
                 }
@@ -262,7 +250,7 @@ pub async fn create_account(
     accounts: tauri::State<'_, AccountService>,
     name: String,
     account_type: &str,
-    starting_balance: i64,
+    starting_balance: f64,
 ) -> Result<(), ()> {
     accounts
         .create_account(&name, account_type, starting_balance)
