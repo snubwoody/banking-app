@@ -61,11 +61,11 @@
         <div class="y-divider"></div>
         {#each accountStore.transactions as transaction (transaction.id)}
             {@const date = new Date(transaction.date)}
-            {@const formatter = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"})}
+            {@const formatter = new Intl.NumberFormat("en-US", {style:"currency", currency:"USD"})}
             <li>{transaction.category.title}</li>
             <!--TODO: format date-->
             <li>{transaction.account.name}</li>
-            <li>{date.toLocaleDateString("en-US",{year: "numeric",month:"long",day:"numeric"})}</li>
+            <li>{date.toLocaleDateString("en-US", {year: "numeric", month:"long", day:"numeric"})}</li>
             <li>{formatter.format(transaction.amount)}</li>
             <div class="y-divider"></div>
         {/each}
