@@ -5,11 +5,11 @@
     import Select from "./Select.svelte";
     import type { Account, Category } from "$lib/db";
 
-
     let category: Category;
     let account: Account;
     let amount: number;
     let date: string;
+
     async function addTransaction() {
         if (!category || !account || !amount ||!date){
             return;
@@ -19,12 +19,12 @@
     }
 </script>
 
-<section class="rounded-sm shadow-sm space-y-1 p-2.5 bg-white">
-    <div class="flex items-center justify-between">
-        <p class="text-lg">Transactions</p>
+<section class="space-y-1.5">
+    <header class="flex items-center justify-between">
+        <h6>Transactions</h6>
         <Dialog title="Add transactions">
             {#snippet trigger()}
-                <i class="ph ph-plus-circle"></i>
+                <i class="ph ph-plus"></i>
             {/snippet}
             {#snippet body()}
                 <div class="space-y-2.5">
@@ -50,20 +50,24 @@
                 <button onclick={addTransaction} class="btn btn-primary">Add transaction</button>
             {/snippet}
         </Dialog>
-    </div>
+    </header>
     <ul class="transaction-grid">
         <!--Table heading-->
-        <li>Category</li>
-        <li>Date</li>
-        <li>Account</li>
-        <li>Amount</li>
+        <li class="text-text-muted">Category</li>
+        <li class="text-text-muted">Date</li>
+        <li class="text-text-muted">Account</li>
+        <li class="text-text-muted">Amount</li>
         <!--Table rows-->
+        <div class="y-divider"></div>
         {#each accountStore.transactions as transaction (transaction.id)}
+            {@const date = new Date(transaction.date)}
+            {@const formatter = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"})}
             <li>{transaction.category.title}</li>
             <!--TODO: format date-->
-            <li>{transaction.date}</li>
             <li>{transaction.account.name}</li>
-            <li>$ {transaction.amount}</li>
+            <li>{date.toLocaleDateString("en-US",{year: "numeric",month:"long",day:"numeric"})}</li>
+            <li>{formatter.format(transaction.amount)}</li>
+            <div class="y-divider"></div>
         {/each}
     </ul>
 </section>
@@ -72,6 +76,10 @@
     .transaction-grid{
         display: grid;
         grid-template-columns: repeat(4,1fr);
-        gap: 20px;
+        gap: 12px;
+
+        li{
+            padding: 4px 0px;
+        }
     }
 </style>
