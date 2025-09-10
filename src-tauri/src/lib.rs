@@ -2,7 +2,8 @@ pub mod db;
 pub mod error;
 pub mod service;
 mod state;
-pub use db::AccountService;
+mod cmd;
+pub use service::AccountService;
 pub use error::{Error, Result};
 pub use state::AppState;
 
@@ -16,15 +17,15 @@ pub async fn run() {
         .manage(account_service)
         .manage(state)
         .invoke_handler(tauri::generate_handler![
-            db::create_account,
-            db::fetch_accounts,
-            db::delete_account,
-            db::get_transactions,
-            db::add_transaction,
-            db::get_categories,
-            db::add_category,
-            db::get_all_transactions,
-            db::get_account_types,
+            cmd::create_account,
+            cmd::fetch_accounts,
+            cmd::delete_account,
+            cmd::get_transactions,
+            cmd::add_transaction,
+            cmd::get_categories,
+            cmd::add_category,
+            cmd::get_all_transactions,
+            cmd::get_account_types,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

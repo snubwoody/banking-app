@@ -69,11 +69,26 @@ async fn no_duplicate_categories(pool: SqlitePool) -> Result<(), Error> {
 async fn get_categories(pool: SqlitePool) -> Result<(), Error> {
     let accounts = AccountService::from_pool(pool.clone()).await;
     let length = accounts.get_categories().await?.len();
-    accounts.add_category("1").await?;
-    accounts.add_category("2").await?;
-    accounts.add_category("3").await?;
+    accounts.add_category("Dummy").await?;
+    accounts.add_category("Dummy 2").await?;
+    accounts.add_category("Dummy 3").await?;
     let categories = accounts.get_categories().await?;
     assert_eq!(categories.len(), length + 3);
+    Ok(())
+}
+
+#[sqlx::test]
+async fn category_length_constraint(pool: SqlitePool) -> Result<(), Error> {
+    // length(category.title) >= 2
+    let accounts = AccountService::from_pool(pool.clone()).await;
+    let result = accounts.add_category("A").await;
+    match result.err().unwrap(){
+        Error::Sqlx(err) => {
+            let check_violation = err.as_database_error().unwrap().is_check_violation();
+            assert!(check_violation);
+        },
+        _ => panic!()
+    }
     Ok(())
 }
 
