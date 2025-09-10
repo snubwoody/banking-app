@@ -19,8 +19,8 @@ async fn expense_is_negative(pool: SqlitePool) -> Result<()> {
         .await?;
 
     let transaction = transactions.get_transaction(&id).await?;
-    assert_eq!(transaction.amount,-240.24);
-    assert_eq!(transaction.date,date);
+    assert_eq!(transaction.amount, -240.24);
+    assert_eq!(transaction.date, date);
     Ok(())
 }
 
@@ -41,8 +41,8 @@ async fn income_is_positive(pool: SqlitePool) -> Result<()> {
         .await?;
 
     let transaction = transactions.get_transaction(&id).await?;
-    assert_eq!(transaction.amount,240.24);
-    assert_eq!(transaction.date,date);
+    assert_eq!(transaction.amount, 240.24);
+    assert_eq!(transaction.date, date);
     Ok(())
 }
 
@@ -57,7 +57,9 @@ async fn get_transaction(pool: SqlitePool) -> Result<()> {
     let account = accounts.create_account("", account_type, 0.0).await?;
     let category_id = &categories[0].id;
     let date = NaiveDate::parse_from_str("2025-10-04", "%Y-%m-%d").unwrap();
-    let transaction_id = accounts.add_transaction(24, &account, &category_id, date).await?;
+    let transaction_id = accounts
+        .add_transaction(24, &account, category_id, date)
+        .await?;
 
     transactions.get_transaction(&transaction_id).await?;
     Ok(())

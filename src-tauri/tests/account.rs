@@ -82,12 +82,12 @@ async fn category_length_constraint(pool: SqlitePool) -> Result<(), Error> {
     // length(category.title) >= 2
     let accounts = AccountService::from_pool(pool.clone()).await;
     let result = accounts.add_category("A").await;
-    match result.err().unwrap(){
+    match result.err().unwrap() {
         Error::Sqlx(err) => {
             let check_violation = err.as_database_error().unwrap().is_check_violation();
             assert!(check_violation);
-        },
-        _ => panic!()
+        }
+        _ => panic!(),
     }
     Ok(())
 }
