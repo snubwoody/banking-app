@@ -7,55 +7,63 @@
 
     let accountType: AccountType | undefined = $state();
     let accountName: string | undefined = $state();
-    let startingBalance: number | undefined = $state();
+    let startingBalance: number = $state(0);
 
     async function addAccount() {
-        if (!accountType || !accountName || !startingBalance){
+        if (!accountType || !accountName){
             return;
         }
 
         accountStore.addAccount(accountName, accountType.id, startingBalance);
     }
-
 </script>
 
-<section>   
-    <h6>Accounts</h6>
-    <ul>
-        {#each accountStore.accounts as account (account.id)}
-            <li class="flex justify-between items-center">
-                <div>
-                    <p>{account.name}</p>
-                    <p class="text-sm">{account.account_type.title}</p>
+<section>
+    <header class="flex w-full items-center justify-between">
+        <h6>Accounts</h6>
+        <Dialog title="Add account">
+            {#snippet trigger()}
+                <i class="ph ph-plus"></i>
+            {/snippet}
+            {#snippet body()}
+                <div class="space-y-2.5">
+                    <TextField bind:value={accountName} label="Name" name="accountName" placeholder="Account name"/>
+                    <Select 
+                        label="Account type"
+                        bind:value={accountType}
+                        options={accountStore.accountTypes}
+                        format={(item) => item.title}
+                    />
+                    <TextField bind:value={startingBalance} label="Starting balance" type="number" name="balance" placeholder="0.00"/>
                 </div>
-                <!--TODO: Replace with balance-->
-                <h6>$ {account.starting_balance}</h6>
-            </li>
+            {/snippet}
+            {#snippet actions()}
+                <button onclick={addAccount} class="btn btn-primary w-full">
+                    <i class="ph ph-plus"></i>
+                    Add account
+                </button>
+            {/snippet}
+        </Dialog>
+    </header>   
+    <div class="flex flex-col gap-1">
+        <p class="text-text-muted">Total balance</p>
+        <h6>$ 24,264.35</h6>
+    </div>
+    <ul>
+        <!--Table header-->
+        <li class="text-text-muted">Name</li>
+        <li class="text-text-muted">Account type</li>
+        <li class="text-text-muted">Balance</li>
+        <!--Table rows-->
+        {#each accountStore.accounts as account (account.id)}
+            <li>{account.name}</li>
+            <li>{account.account_type.title}</li>
+            <!--TODO: Replace with balance-->
+            <li>$ {account.starting_balance}</li>
+            <div class="y-divider"></div>
         {/each}
     </ul>
-    <Dialog title="Add account">
-        {#snippet trigger()}
-            Add account
-        {/snippet}
-        {#snippet body()}
-            <div class="space-y-2.5">
-                <TextField bind:value={accountName} label="Name" name="accountName" placeholder="Account name"/>
-                <Select 
-                    label="Account type"
-                    bind:value={accountType}
-                    options={accountStore.accountTypes}
-                    format={(item) => item.title}
-                />
-                <TextField bind:value={startingBalance} label="Starting balance" type="number" name="balance" placeholder="0.00"/>
-            </div>
-        {/snippet}
-        {#snippet actions()}
-            <button onclick={addAccount} class="btn btn-primary w-full">
-                <i class="ph ph-plus"></i>
-                Add account
-            </button>
-        {/snippet}
-    </Dialog>
+
 </section>
 
 <style>
@@ -66,22 +74,17 @@
         flex-direction: column;
         gap: 20px;
         align-items: start;
-        background: white;
-        border-radius: var(--radius-md);
-        padding: --spacing(2.5);
-        box-shadow: var(--shadow-sm);
     }
 
     ul{
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
-        gap: 24px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        @apply divide-y divide-neutral-100;
 
         li{
-            background: var(--color-neutral-50);
-            border-radius: var(--radius-md);
-            padding: 12px 16px;
+            padding: 4px 0px;
         }
     }
 </style>

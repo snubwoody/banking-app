@@ -22,4 +22,14 @@
     --color-neutral-800: hsla(0, 0%, 24%, 1);
     --color-neutral-900: hsla(0, 0%, 16%, 1);
     --color-neutral-950: hsla(0, 0%, 9%, 1);
+
+    --color-text-heading: var(--color-neutral-950);
+    --color-text-body: var(--color-neutral-900);
+    --color-text-muted: var(--color-neutral-600);
+}
+
+@layer base{
+    *{
+        color: var(--color-text-body);
+    }
 }
