@@ -1,4 +1,4 @@
-use sqlx::SqlitePool;
+use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
 use std::fs::{self, File};
 
 /// Global app state.
