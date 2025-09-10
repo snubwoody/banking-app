@@ -19,3 +19,7 @@ pub struct Category {
     pub id: String,
     pub title: String,
 }
+
+pub struct TransactionService{
+    
+}
