@@ -177,7 +177,6 @@ impl AccountService {
                     id: row.id,
                     date,
                     amount: row.amount,
-                    to_account: None,
                     account,
                     category,
                 }
@@ -217,7 +216,6 @@ impl AccountService {
                     id: row.id,
                     date,
                     amount: row.amount,
-                    to_account: None,
                     account,
                     category,
                 }

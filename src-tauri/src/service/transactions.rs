@@ -1,21 +1,13 @@
-use crate::{AppState, db::Account};
+use crate::{db::{Account, AccountType}, AppState};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
-enum TransactionType {
-    Income,
-    Expense,
-    Transfer,
-}
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
 pub struct Transaction {
     pub id: String,
     pub account: Account,
-    /// For transfers
-    pub to_account: Option<Account>,
     pub amount: f64,
     pub category: Category,
     pub date: NaiveDate,
@@ -27,12 +19,6 @@ pub struct Category {
     pub title: String,
 }
 
-
-pub struct TransactionBuilder{
-    transaction_type: TransactionType,
-    date: NaiveDate
-}
-
 pub struct TransactionService {
     state: AppState,
 }
@@ -40,6 +26,39 @@ pub struct TransactionService {
 impl TransactionService {
     pub fn new(state: AppState) -> Self {
         Self { state }
+    }
+
+    pub async fn get_transaction(&self, id: &str) -> crate::Result<Transaction>{
+        let pool = self.state.pool();
+        let row = sqlx::query_file!("queries/get_transaction.sql",id)
+            .fetch_one(pool)
+            .await?;
+
+        let account_type = AccountType{
+            id: row.account_type_id,
+            title: row.account_type_title
+        };
+
+        // TODO: maybe return error
+        let date = NaiveDate::parse_from_str(&row.date, "%Y-%m-%d")
+            .unwrap_or_default();
+
+        let transaction = Transaction{
+            id: row.id,
+            date,
+            amount: row.amount,
+            account: Account { 
+                id: row.account_id, 
+                name: row.account_name, 
+                account_type, 
+                starting_balance: row.account_starting_balance 
+            },
+            category: Category { 
+                id: row.category_id, 
+                title: row.category_title 
+            }
+        };
+        Ok(transaction)
     }
 
     pub async fn add_expense(
@@ -50,8 +69,9 @@ impl TransactionService {
         date: NaiveDate,
     ) -> crate::Result<()> {
         let pool = self.state.pool();
+        let amount = - amount;
         let row = sqlx::query_file!(
-            "queries/add_transaction.sql",
+            "queries/add_new_transaction.sql",
             amount,
             account_id,
             category_id,
@@ -59,6 +79,7 @@ impl TransactionService {
         )
         .fetch_one(pool)
         .await?;
+
         dbg!(row);
         Ok(())
     }
