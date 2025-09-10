@@ -1,4 +1,4 @@
-use crate::service::{Account,Transaction,Category,AccountService,AccountType};
+use crate::service::{Account, AccountService, AccountType, Category, Transaction};
 use chrono::NaiveDate;
 
 #[tauri::command]

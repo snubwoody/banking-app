@@ -225,4 +225,3 @@ impl AccountService {
         Ok(transactions)
     }
 }
-

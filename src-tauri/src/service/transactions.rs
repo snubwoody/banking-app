@@ -1,8 +1,10 @@
-use crate::{service::{Account, AccountType}, AppState};
+use crate::{
+    AppState,
+    service::{Account, AccountType},
+};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-
 
 #[derive(Debug, FromRow, Serialize, Deserialize, Default)]
 pub struct Transaction {
@@ -28,35 +30,34 @@ impl TransactionService {
         Self { state }
     }
 
-    pub async fn get_transaction(&self, id: &str) -> crate::Result<Transaction>{
+    pub async fn get_transaction(&self, id: &str) -> crate::Result<Transaction> {
         let pool = self.state.pool();
-        let row = sqlx::query_file!("queries/get_transaction.sql",id)
+        let row = sqlx::query_file!("queries/get_transaction.sql", id)
             .fetch_one(pool)
             .await?;
 
-        let account_type = AccountType{
+        let account_type = AccountType {
             id: row.account_type_id,
-            title: row.account_type_title
+            title: row.account_type_title,
         };
 
         // TODO: maybe return error
-        let date = NaiveDate::parse_from_str(&row.date, "%Y-%m-%d")
-            .unwrap_or_default();
+        let date = NaiveDate::parse_from_str(&row.date, "%Y-%m-%d").unwrap_or_default();
 
-        let transaction = Transaction{
+        let transaction = Transaction {
             id: row.id,
             date,
             amount: row.amount,
-            account: Account { 
-                id: row.account_id, 
-                name: row.account_name, 
-                account_type, 
-                starting_balance: row.account_starting_balance 
+            account: Account {
+                id: row.account_id,
+                name: row.account_name,
+                account_type,
+                starting_balance: row.account_starting_balance,
             },
-            category: Category { 
-                id: row.category_id, 
-                title: row.category_title 
-            }
+            category: Category {
+                id: row.category_id,
+                title: row.category_title,
+            },
         };
         Ok(transaction)
     }
@@ -70,7 +71,7 @@ impl TransactionService {
         date: NaiveDate,
     ) -> crate::Result<String> {
         let pool = self.state.pool();
-        let amount = - amount;
+        let amount = -amount;
         let row = sqlx::query_file!(
             "queries/add_new_transaction.sql",
             amount,

@@ -1,10 +1,10 @@
+mod cmd;
 pub mod db;
 pub mod error;
 pub mod service;
 mod state;
-mod cmd;
-pub use service::AccountService;
 pub use error::{Error, Result};
+pub use service::AccountService;
 pub use state::AppState;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
