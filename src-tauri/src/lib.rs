@@ -1,15 +1,21 @@
 pub mod db;
+mod state;
 pub mod transactions;
 pub mod error;
 pub use db::AccountService;
-pub use error::Error;
+pub use error::{Error,Result};
+pub use state::AppState;
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
+    // FIXME don't unwrap
     let account_service = AccountService::new().await.unwrap();
+    let state = AppState::init().await.unwrap();
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(account_service)
+        .manage(state)
         .invoke_handler(tauri::generate_handler![
             db::create_account,
             db::fetch_accounts,
